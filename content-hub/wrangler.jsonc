@@ -1,0 +1,28 @@
+{
+  // Configuração do projeto Cloudflare Pages (frontend Vite + Pages Functions).
+  // Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+  "name": "conteudo-extremo",
+  "compatibility_date": "2024-12-01",
+
+  // Diretório de saída do build do Vite (relativo à raiz do projeto Pages,
+  // que deve ser configurada como "content-hub" no painel da Cloudflare).
+  "pages_build_output_dir": "dist",
+
+  // KV substitui a persistência em arquivo (/tmp) que o Express usava.
+  // Guarda usuários (auth) e o store global (data).
+  // IMPORTANTE: preencha os "id" após criar o namespace:
+  //   npx wrangler kv namespace create CONTENT_HUB_KV
+  //   npx wrangler kv namespace create CONTENT_HUB_KV --preview
+  "kv_namespaces": [
+    {
+      "binding": "CONTENT_HUB_KV",
+      "id": "PREENCHER_COM_O_ID_DE_PRODUCAO",
+      "preview_id": "PREENCHER_COM_O_ID_DE_PREVIEW"
+    }
+  ]
+
+  // As variáveis de ambiente (ANTHROPIC_API_KEY, OPENAI_API_KEY, YOUTUBE_*,
+  // FACEBOOK_*, INSTAGRAM_*) NÃO vão aqui — são secrets. Configure em:
+  //   Pages > Settings > Environment variables (Production e Preview)
+  // Para dev local, use o arquivo .dev.vars (veja .dev.vars.example).
+}

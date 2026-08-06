@@ -1,0 +1,11 @@
+# Cloudflare Pages — regras de roteamento
+#
+# Precedência no Pages: (1) Functions em /functions  ->  (2) assets estáticos
+# do /dist  ->  (3) este arquivo _redirects.
+#
+# Por isso NÃO precisamos listar /api aqui: as rotas /api/* são resolvidas antes,
+# pela Function functions/api/[[path]].js. Tudo o que sobra (rotas do SPA como
+# /dashboard, /login, etc.) cai no index.html com status 200 (rewrite, não 301),
+# preservando a URL para o React Router / roteador interno.
+
+/*    /index.html    200

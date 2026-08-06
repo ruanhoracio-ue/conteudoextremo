@@ -17,6 +17,10 @@ dist-ssr
 .env.local
 .env.production
 
+# Cloudflare
+.dev.vars
+.wrangler
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,3 +32,4 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+.mf

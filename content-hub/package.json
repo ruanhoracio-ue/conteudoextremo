@@ -11,13 +11,16 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "server:install": "cd server && npm install",
-    "setup": "npm install && cd server && npm install"
+    "setup": "npm install && cd server && npm install",
+    "cf:dev": "npm run build && wrangler pages dev",
+    "cf:deploy": "npm run build && wrangler pages deploy"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.9",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "hono": "^4.13.0",
     "lucide-react": "^1.27.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -32,6 +35,7 @@
     "postcss": "^8.5.23",
     "tailwindcss": "^3.4.19",
     "vercel": "^58.0.0",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "wrangler": "^3.90.0"
   }
 }

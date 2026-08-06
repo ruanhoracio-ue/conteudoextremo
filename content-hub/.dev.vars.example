@@ -1,0 +1,23 @@
+# Variáveis de ambiente para dev local com Cloudflare (wrangler pages dev).
+# Copie para `.dev.vars` (que está no .gitignore) e preencha.
+# Em PRODUÇÃO, configure os mesmos valores em:
+#   Cloudflare Pages > Settings > Environment variables
+
+# OpenAI (IA — legendas, hashtags, títulos)
+OPENAI_API_KEY=sk-sua-chave-openai-aqui
+
+# Anthropic / Claude (Claude AI Copilot)
+ANTHROPIC_API_KEY=sk-ant-sua-chave-claude-aqui
+
+# YouTube (analytics)
+YOUTUBE_API_KEY=sua-youtube-api-key
+YOUTUBE_CHANNEL_ID=UCSeuChannelIdAqui
+
+# Instagram / Facebook (publicação e analytics)
+FACEBOOK_APP_ID=seu-facebook-app-id
+FACEBOOK_APP_SECRET=seu-facebook-app-secret
+INSTAGRAM_ACCESS_TOKEN=seu-instagram-access-token
+INSTAGRAM_USER_ID=seu-instagram-user-id
+# Em produção, aponte para o domínio final:
+#   https://conteudo.conversaoextrema.com/api/instagram/callback
+REDIRECT_URI=http://localhost:8788/api/instagram/callback

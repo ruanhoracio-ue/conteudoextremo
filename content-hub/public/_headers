@@ -1,0 +1,11 @@
+# Cloudflare Pages — cabeçalhos por rota.
+# Defaults conservadores de segurança. Ajuste se precisar embutir o app em iframe.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Assets com hash no nome podem ser cacheados agressivamente.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
