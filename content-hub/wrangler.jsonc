@@ -1,18 +1,24 @@
 {
-  // Configuração do projeto Cloudflare Pages (frontend Vite + Pages Functions).
-  // Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
-  "name": "conteudo-extremo",
+  // Configuração do Worker (Cloudflare Workers + Static Assets).
+  // Migrado de Cloudflare Pages -> Workers.
+  // Docs: https://developers.cloudflare.com/workers/static-assets/
+  "name": "conteudoextremo",
   "compatibility_date": "2024-12-01",
 
-  // Diretório de saída do build do Vite (relativo à raiz do projeto Pages,
-  // que deve ser configurada como "content-hub" no painel da Cloudflare).
-  "pages_build_output_dir": "dist",
+  // Entrada do Worker: serve /api/* (Hono) e delega o resto para os assets.
+  "main": "worker.js",
 
-  // KV substitui a persistência em arquivo (/tmp) que o Express usava.
-  // Guarda usuários (auth) e o store global (data).
-  // Namespaces criados na conta "Universo Extremo":
+  // Site estático (build do Vite em ./dist). O not_found_handling = SPA
+  // devolve index.html para rotas do app (ex.: /dashboard), preservando a URL.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+
+  // KV (mesmos namespaces criados na conta Universo Extremo):
   //   content_hub_kv          (produção)
-  //   content_hub_kv_preview  (deploys de preview)
+  //   content_hub_kv_preview  (preview)
   "kv_namespaces": [
     {
       "binding": "CONTENT_HUB_KV",
@@ -21,8 +27,8 @@
     }
   ]
 
-  // As variáveis de ambiente (ANTHROPIC_API_KEY, OPENAI_API_KEY, YOUTUBE_*,
-  // FACEBOOK_*, INSTAGRAM_*) NÃO vão aqui — são secrets. Configure em:
-  //   Pages > Settings > Environment variables (Production e Preview)
-  // Para dev local, use o arquivo .dev.vars (veja .dev.vars.example).
+  // Variáveis de ambiente (ANTHROPIC_API_KEY, OPENAI_API_KEY, VITE_SUPABASE_*,
+  // YOUTUBE_*, FACEBOOK_*, INSTAGRAM_*) NÃO vão aqui — configure em:
+  //   Workers & Pages > (projeto) > Settings > Variables and Secrets
+  // Para dev local, use .dev.vars (veja .dev.vars.example).
 }

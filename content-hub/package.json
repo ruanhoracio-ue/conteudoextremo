@@ -12,8 +12,8 @@
     "preview": "vite preview",
     "server:install": "cd server && npm install",
     "setup": "npm install && cd server && npm install",
-    "cf:dev": "npm run build && wrangler pages dev",
-    "cf:deploy": "npm run build && wrangler pages deploy"
+    "cf:dev": "npm run build && wrangler dev",
+    "cf:deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.9",
