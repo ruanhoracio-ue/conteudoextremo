@@ -10,14 +10,14 @@
 
   // KV substitui a persistência em arquivo (/tmp) que o Express usava.
   // Guarda usuários (auth) e o store global (data).
-  // IMPORTANTE: preencha os "id" após criar o namespace:
-  //   npx wrangler kv namespace create CONTENT_HUB_KV
-  //   npx wrangler kv namespace create CONTENT_HUB_KV --preview
+  // Namespaces criados na conta "Universo Extremo":
+  //   content_hub_kv          (produção)
+  //   content_hub_kv_preview  (deploys de preview)
   "kv_namespaces": [
     {
       "binding": "CONTENT_HUB_KV",
-      "id": "PREENCHER_COM_O_ID_DE_PRODUCAO",
-      "preview_id": "PREENCHER_COM_O_ID_DE_PREVIEW"
+      "id": "c8d63494eef74bd0b9748bc933b0bfc3",
+      "preview_id": "494b41a38cce402baa748d9c552ba835"
     }
   ]
 
