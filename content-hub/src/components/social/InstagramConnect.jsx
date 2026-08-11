@@ -31,7 +31,7 @@ export function InstagramConnect() {
       return
     }
     setSaving(true)
-    const res = await api.post('/api/instagram/configure', { accessToken: tokenInput, userId: userIdInput })
+    const res = await api.post('/instagram/configure', { accessToken: tokenInput, userId: userIdInput })
     if (res.error) {
       toast(res.error)
     } else {

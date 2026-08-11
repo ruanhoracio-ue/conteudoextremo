@@ -15,19 +15,6 @@ export const api = {
     }
   },
 
-  async gerarCalendario(items) {
-    try {
-      const res = await fetch(`${API_URL}/ai/gerar-calendario`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
-      })
-      return res.json()
-    } catch (e) {
-      return { error: 'Servidor offline' }
-    }
-  },
-
   async instagramPublish(imageUrl, caption) {
     try {
       const res = await fetch(`${API_URL}/instagram/publish`, {
