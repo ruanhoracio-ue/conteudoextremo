@@ -15,6 +15,7 @@ import { claudeRouter } from './routes/claude.js'
 import { instagramRouter } from './routes/instagram.js'
 import { youtubeRouter } from './routes/youtube.js'
 import { mineracaoRouter } from './routes/mineracao.js'
+import { mediaRouter } from './routes/media.js'
 
 const app = new Hono().basePath('/api')
 
@@ -27,6 +28,7 @@ app.route('/claude', claudeRouter)
 app.route('/instagram', instagramRouter)
 app.route('/youtube', youtubeRouter)
 app.route('/mineracao', mineracaoRouter)
+app.route('/media', mediaRouter)
 
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 

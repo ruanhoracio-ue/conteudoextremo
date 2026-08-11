@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
 import { Field, Input, Select, Textarea } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
+import { UploadButton } from '../../components/ui/UploadButton'
 import { exportToCSV } from '../../store/storage'
 import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
@@ -292,10 +293,16 @@ function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Link Finalizado">
-            <Input value={form.linkFinalizado} onChange={e => set('linkFinalizado', e.target.value)} placeholder="https://..." />
+            <div className="flex items-center gap-2">
+              <Input value={form.linkFinalizado} onChange={e => set('linkFinalizado', e.target.value)} placeholder="https://... ou Subir" />
+              <UploadButton onUploaded={url => set('linkFinalizado', url)} onError={() => toast('Falha no upload. Tente novamente.')} />
+            </div>
           </Field>
           <Field label="Thumbnail">
-            <Input value={form.thumb} onChange={e => set('thumb', e.target.value)} placeholder="URL da thumbnail" />
+            <div className="flex items-center gap-2">
+              <Input value={form.thumb} onChange={e => set('thumb', e.target.value)} placeholder="URL ou Subir" />
+              <UploadButton accept="image/*" onUploaded={url => set('thumb', url)} onError={() => toast('Falha no upload. Tente novamente.')} />
+            </div>
           </Field>
         </div>
         <div className="flex items-center gap-6 pt-2">

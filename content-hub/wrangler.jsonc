@@ -29,6 +29,15 @@
       "id": "c8d63494eef74bd0b9748bc933b0bfc3",
       "preview_id": "494b41a38cce402baa748d9c552ba835"
     }
+  ],
+
+  // R2: armazenamento de mídia (vídeos, criativos, reels) enviados pelo app.
+  // Criar o bucket uma vez com: npx wrangler@4 r2 bucket create content-hub-media
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "content-hub-media"
+    }
   ]
 
   // Variáveis de ambiente (ANTHROPIC_API_KEY, OPENAI_API_KEY, VITE_SUPABASE_*,

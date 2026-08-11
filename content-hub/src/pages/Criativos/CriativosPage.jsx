@@ -8,6 +8,8 @@ import { useAuth } from '../../store/AuthContext'
 import { useSpotlight } from '../../lib/useSpotlight'
 import { ImportCriativosSheetModal } from '../../components/ImportCriativosSheetModal'
 import { Button } from '../../components/ui/Button'
+import { UploadButton } from '../../components/ui/UploadButton'
+import { toast } from '../../components/ui/Toast'
 import { exportToCSV } from '../../store/storage'
 import {
   loadCollection,
@@ -710,14 +712,20 @@ export function CriativosPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink mb-1">Arquivo Finalizado (Google Drive)</label>
-                <input
-                  type="url"
-                  value={formData.arquivoFinalizado}
-                  onChange={(e) => setFormData({ ...formData, arquivoFinalizado: e.target.value })}
-                  placeholder="https://drive.google.com/..."
-                  className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:border-emerald focus:outline-none font-mono text-[11px]"
-                />
+                <label className="block text-xs font-semibold text-ink mb-1">Arquivo Finalizado (link ou upload)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={formData.arquivoFinalizado}
+                    onChange={(e) => setFormData({ ...formData, arquivoFinalizado: e.target.value })}
+                    placeholder="https://... ou clique em Subir"
+                    className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:border-emerald focus:outline-none font-mono text-[11px]"
+                  />
+                  <UploadButton
+                    onUploaded={(url) => setFormData((f) => ({ ...f, arquivoFinalizado: url }))}
+                    onError={() => toast('Falha no upload. Tente novamente.')}
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">

@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
 import { Field, Input, Select } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
+import { UploadButton } from '../../components/ui/UploadButton'
 import { exportToCSV } from '../../store/storage'
 import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
@@ -245,7 +246,10 @@ function VideosCurtosForm({ initialData, onSave, onClose }) {
           </Select>
         </Field>
         <Field label="Link Finalizado">
-          <Input value={form.linkFinalizado} onChange={e => set('linkFinalizado', e.target.value)} placeholder="https://..." />
+          <div className="flex items-center gap-2">
+            <Input value={form.linkFinalizado} onChange={e => set('linkFinalizado', e.target.value)} placeholder="https://... ou clique em Subir" />
+            <UploadButton onUploaded={url => set('linkFinalizado', url)} onError={() => toast('Falha no upload. Tente novamente.')} />
+          </div>
         </Field>
       </div>
       <Field label="Título">
