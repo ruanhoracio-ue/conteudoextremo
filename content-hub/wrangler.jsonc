@@ -5,6 +5,10 @@
   "name": "conteudoextremo",
   "compatibility_date": "2024-12-01",
 
+  // Conta Universo Extremo (onde estão o KV e o domínio). Deixar fixo evita o
+  // wrangler perguntar qual conta usar no deploy.
+  "account_id": "901c0fcf76c923b25df1d818a91389d5",
+
   // Entrada do Worker: serve /api/* (Hono) e delega o resto para os assets.
   "main": "worker.js",
 

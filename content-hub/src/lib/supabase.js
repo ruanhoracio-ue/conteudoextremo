@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Valores públicos do projeto Supabase como fallback (a chave publishable é
+// pública por design — protegida por RLS no servidor). Assim o build funciona
+// sem precisar configurar variáveis de ambiente. Para apontar para outro
+// projeto, defina VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (elas têm prioridade).
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jtbcdnoiwocgfunckvvz.supabase.co'
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_nCZQXm9MY_33E3NoHiw_7A_xVJMkWVD'
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey)
 
