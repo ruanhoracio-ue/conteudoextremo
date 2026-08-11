@@ -9,6 +9,7 @@ import { useSpotlight } from '../../lib/useSpotlight'
 import { ImportCriativosSheetModal } from '../../components/ImportCriativosSheetModal'
 import { Button } from '../../components/ui/Button'
 import { UploadButton } from '../../components/ui/UploadButton'
+import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { toast } from '../../components/ui/Toast'
 import { exportToCSV } from '../../store/storage'
 import {
@@ -521,7 +522,14 @@ export function CriativosPage() {
 
                     {/* Nome Arquivo */}
                     <td className="px-4 py-3 font-medium text-ink">
-                      {item.nomeArquivo}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditModal(item)}
+                        className="text-left hover:text-emerald hover:underline underline-offset-2 transition-colors"
+                        title="Abrir criativo (editar e anexar arquivos)"
+                      >
+                        {item.nomeArquivo}
+                      </button>
                     </td>
 
                     {/* Link Pasta Base (Drive) */}
@@ -727,6 +735,14 @@ export function CriativosPage() {
                   />
                 </div>
               </div>
+
+              {editingItem?.id ? (
+                <div className="pt-3 border-t border-hairline">
+                  <AttachmentsPanel itemType="criativos" itemId={editingItem.id} />
+                </div>
+              ) : (
+                <p className="pt-1 text-[11px] text-faint">Salve o criativo para poder anexar arquivos a ele.</p>
+              )}
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
                 <Button variant="secondary" size="sm" type="button" onClick={() => setAddModalOpen(false)}>

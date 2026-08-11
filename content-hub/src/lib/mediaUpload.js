@@ -40,14 +40,15 @@ async function jsonFetch(url, options) {
   return data
 }
 
-export async function uploadMedia(file, onProgress = () => {}) {
+export async function uploadMedia(file, onProgress = () => {}, prefix = '') {
   const type = file.type || 'application/octet-stream'
+  const prefixParam = prefix ? `&prefix=${encodeURIComponent(prefix)}` : ''
 
   // ---- Caminho simples (1 request) ----
   if (file.size <= SIMPLE_LIMIT) {
     const data = await xhrSend({
       method: 'POST',
-      url: `/api/media/upload?filename=${encodeURIComponent(file.name)}`,
+      url: `/api/media/upload?filename=${encodeURIComponent(file.name)}${prefixParam}`,
       body: file,
       contentType: type,
       onProgress: (loaded, total) => onProgress(Math.round((loaded / total) * 100)),
@@ -58,7 +59,7 @@ export async function uploadMedia(file, onProgress = () => {}) {
   // ---- Caminho multipart (arquivos grandes) ----
   const { key, uploadId } = await jsonFetch('/api/media/mpu/create', {
     method: 'POST',
-    body: JSON.stringify({ filename: file.name, contentType: type }),
+    body: JSON.stringify({ filename: file.name, contentType: type, prefix }),
   })
 
   const totalParts = Math.ceil(file.size / PART_SIZE)
@@ -102,4 +103,10 @@ export async function uploadMedia(file, onProgress = () => {}) {
 export async function deleteMedia(urlOrKey) {
   const key = urlOrKey.replace(/^\/api\/media\/file\//, '')
   return jsonFetch(`/api/media/file/${key}`, { method: 'DELETE' })
+}
+
+// Lista os anexos de um item (prefix = "videosLongos/<id>", "criativos/<id>"...)
+export async function listMedia(prefix) {
+  const data = await jsonFetch(`/api/media/list?prefix=${encodeURIComponent(prefix)}`)
+  return data.files || []
 }

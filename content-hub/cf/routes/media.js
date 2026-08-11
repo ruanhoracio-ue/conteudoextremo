@@ -27,12 +27,25 @@ function sanitizeFilename(name) {
     .slice(0, 120) || 'arquivo'
 }
 
-function newKey(filename) {
+function sanitizePrefix(prefix) {
+  // "videosLongos/abc-123" -> só caracteres seguros, sem ../
+  return (prefix || '')
+    .replace(/\.\./g, '')
+    .replace(/[^A-Za-z0-9/_-]+/g, '-')
+    .replace(/\/+/g, '/')
+    .replace(/^\/|\/$/g, '')
+    .slice(0, 200)
+}
+
+function newKey(filename, prefix) {
+  const rand = Math.random().toString(36).slice(2, 8)
+  const base = `${Date.now()}-${rand}-${sanitizeFilename(filename)}`
+  const p = sanitizePrefix(prefix)
+  if (p) return `anexos/${p}/${base}`
   const d = new Date()
   const yyyy = d.getFullYear()
   const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const rand = Math.random().toString(36).slice(2, 8)
-  return `uploads/${yyyy}/${mm}/${Date.now()}-${rand}-${sanitizeFilename(filename)}`
+  return `uploads/${yyyy}/${mm}/${base}`
 }
 
 // POST /api/media/upload?filename=video.mp4  (corpo = bytes do arquivo)
@@ -42,7 +55,7 @@ mediaRouter.post('/upload', async (c) => {
 
   const filename = c.req.query('filename') || 'arquivo'
   const contentType = c.req.header('content-type') || 'application/octet-stream'
-  const key = newKey(filename)
+  const key = newKey(filename, c.req.query('prefix'))
 
   try {
     const obj = await bucket.put(key, c.req.raw.body, {
@@ -66,8 +79,8 @@ mediaRouter.post('/mpu/create', async (c) => {
   const bucket = bucketOf(c)
   if (!bucket) return c.json({ error: 'Bucket R2 (MEDIA) não está vinculado.' }, 500)
 
-  const { filename, contentType } = await c.req.json().catch(() => ({}))
-  const key = newKey(filename)
+  const { filename, contentType, prefix } = await c.req.json().catch(() => ({}))
+  const key = newKey(filename, prefix)
 
   try {
     const mpu = await bucket.createMultipartUpload(key, {
@@ -133,6 +146,32 @@ mediaRouter.delete('/mpu/abort', async (c) => {
     // abort é best-effort
   }
   return c.json({ success: true })
+})
+
+// GET /api/media/list?prefix=videosLongos/<id> — lista anexos de um item
+mediaRouter.get('/list', async (c) => {
+  const bucket = bucketOf(c)
+  if (!bucket) return c.json({ error: 'Bucket R2 (MEDIA) não está vinculado.' }, 500)
+
+  const p = sanitizePrefix(c.req.query('prefix'))
+  if (!p) return c.json({ error: 'prefix é obrigatório' }, 400)
+
+  try {
+    const listed = await bucket.list({ prefix: `anexos/${p}/`, include: ['httpMetadata', 'customMetadata'] })
+    const files = listed.objects.map((o) => ({
+      key: o.key,
+      url: `/api/media/file/${o.key}`,
+      name: o.customMetadata?.originalName || o.key.split('/').pop(),
+      size: o.size,
+      contentType: o.httpMetadata?.contentType || 'application/octet-stream',
+      uploaded: o.uploaded,
+    }))
+    // mais recentes primeiro
+    files.sort((a, b) => new Date(b.uploaded) - new Date(a.uploaded))
+    return c.json({ files })
+  } catch (err) {
+    return c.json({ error: `Falha ao listar: ${err.message}` }, 500)
+  }
 })
 
 // GET /api/media/file/<key...>  — entrega o arquivo (com Range p/ vídeo)

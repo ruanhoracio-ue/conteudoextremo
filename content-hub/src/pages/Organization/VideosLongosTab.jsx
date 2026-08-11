@@ -10,6 +10,7 @@ import { Modal } from '../../components/ui/Modal'
 import { Field, Input, Select, Textarea } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
 import { UploadButton } from '../../components/ui/UploadButton'
+import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { exportToCSV } from '../../store/storage'
 import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
@@ -181,7 +182,14 @@ export function VideosLongosTab({ onNavigate }) {
                   <td className="px-4 py-4 text-body">{item.ondeQuem}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-ink font-medium">{item.tema}</span>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(item)}
+                        className="text-left text-ink font-medium hover:text-emerald hover:underline underline-offset-2 transition-colors"
+                        title="Abrir vídeo (editar e anexar arquivos)"
+                      >
+                        {item.tema}
+                      </button>
                       {isPending(item) && (
                         <span title="Aprovado sem link finalizado" className="pending-pulse">
                           <AlertCircle size={14} className="text-warning" />
@@ -310,6 +318,13 @@ function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
             <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />
           ))}
         </div>
+        {initialData?.id ? (
+          <div className="pt-4 border-t border-hairline">
+            <AttachmentsPanel itemType="videosLongos" itemId={initialData.id} />
+          </div>
+        ) : (
+          <p className="pt-2 text-[11px] text-faint">Salve o vídeo para poder anexar arquivos a ele.</p>
+        )}
         <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
           <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>
           <Button variant="primary" size="sm" type="submit">{initialData ? 'Salvar' : 'Adicionar'}</Button>
