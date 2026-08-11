@@ -52,12 +52,12 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
     if (!selected.length) return
 
     for (const file of selected) {
-      const entry = { name: file.name, progress: 0 }
-      setUploads(prev => [...prev, entry])
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      setUploads(prev => [...prev, { id, name: file.name, progress: 0 }])
       try {
         await uploadMedia(
           file,
-          (p) => setUploads(prev => prev.map(u => (u === entry ? { ...u, progress: p } : u))),
+          (p) => setUploads(prev => prev.map(u => (u.id === id ? { ...u, progress: p } : u))),
           prefix,
         )
         toast(`"${file.name}" anexado!`)
@@ -65,7 +65,7 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
         console.error('Upload falhou:', err)
         toast(`Falha ao enviar "${file.name}"`)
       } finally {
-        setUploads(prev => prev.filter(u => u !== entry))
+        setUploads(prev => prev.filter(u => u.id !== id))
       }
     }
     refresh()
@@ -144,9 +144,30 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
             return (
               <li key={f.key} className="group flex items-center gap-3 rounded-lg border border-hairline bg-surface px-3 py-2">
                 {isImage ? (
-                  <img src={f.url} alt="" className="h-9 w-9 shrink-0 rounded-md object-cover" loading="lazy" />
+                  <button type="button" onClick={() => setPreview(f)} title="Visualizar" className="shrink-0">
+                    <img src={f.url} alt="" className="h-12 w-12 rounded-md object-cover" loading="lazy" />
+                  </button>
+                ) : isVideo ? (
+                  <button
+                    type="button"
+                    onClick={() => setPreview(f)}
+                    title="Assistir"
+                    className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-black/60"
+                  >
+                    {/* preload=metadata + #t=0.1 pinta o primeiro frame sem baixar o vídeo todo */}
+                    <video
+                      src={`${f.url}#t=0.1`}
+                      preload="metadata"
+                      muted
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <Play size={14} className="text-white drop-shadow" fill="currentColor" />
+                    </span>
+                  </button>
                 ) : (
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-elevated text-mute">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-elevated text-mute">
                     <Icon size={16} />
                   </span>
                 )}
