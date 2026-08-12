@@ -255,3 +255,23 @@
 .ds-btn-secondary:hover::after {
   opacity: 1;
 }
+
+/* ---------- Modais (classes usadas por Modal, ConfirmDialog e modais custom) ---------- */
+/* Backdrop fixo cobrindo a tela: o popup abre centralizado, sem rolar a página */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* Conteúdo limitado à altura da tela; o que passar rola DENTRO do popup */
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
