@@ -65,6 +65,8 @@ export function CriativosPage() {
   const [importModalOpen, setImportModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
+  // id gerado ao abrir "Novo Criativo", para permitir anexos antes de salvar
+  const [draftId, setDraftId] = useState(null)
 
   // Copy feedback state
   const [copiedId, setCopiedId] = useState(null)
@@ -200,6 +202,7 @@ export function CriativosPage() {
 
   const handleOpenAddModal = () => {
     setEditingItem(null)
+    setDraftId(`criativo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`)
     setFormData({
       status: 'Fila',
       editor: '',
@@ -239,7 +242,7 @@ export function CriativosPage() {
         await updateInSupabase('criativos', editingItem.id, formData)
       } else {
         const newItem = {
-          id: `criativo-${Date.now()}`,
+          id: draftId || `criativo-${Date.now()}`,
           ...formData,
           createdAt: new Date().toISOString(),
         }
@@ -676,13 +679,9 @@ export function CriativosPage() {
                 </div>
               </div>
 
-              {editingItem?.id ? (
-                <div className="pt-3 border-t border-hairline">
-                  <AttachmentsPanel itemType="criativos" itemId={editingItem.id} />
-                </div>
-              ) : (
-                <p className="pt-1 text-[11px] text-faint">Salve o criativo para poder anexar arquivos a ele.</p>
-              )}
+              <div className="pt-3 border-t border-hairline">
+                <AttachmentsPanel itemType="criativos" itemId={editingItem?.id || draftId} />
+              </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-hairline">
                 <Button variant="secondary" size="sm" type="button" onClick={() => setAddModalOpen(false)}>

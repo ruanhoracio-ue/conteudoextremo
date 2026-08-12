@@ -48,7 +48,10 @@ function mapKeys(obj, fn) {
 
 export function itemToDb(item, name) {
   const db = mapKeys(item, camelToSnake)
-  if (!CLIENT_ID_TABLES.has(name)) {
+  // Mantém o id quando fornecido (permite gerar o id no cliente antes de
+  // salvar — necessário para anexar arquivos a itens ainda não salvos).
+  // Sem id, as tabelas uuid continuam gerando via gen_random_uuid().
+  if (!CLIENT_ID_TABLES.has(name) && !db.id) {
     delete db.id
   }
   delete db.created_at

@@ -240,12 +240,14 @@ export function VideosCurtosTab({ onNavigate }) {
 
 function VideosCurtosForm({ initialData, onSave, onClose }) {
   const [form, setForm] = useState(initialData || emptyItem)
+  // id gerado já na criação, para permitir anexos antes de salvar
+  const [draftId] = useState(() => crypto.randomUUID())
   const set = (f, v) => setForm(prev => ({ ...prev, [f]: v }))
 
   if (initialData && form.id !== initialData.id) setForm(initialData)
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onSave(form) }} className="space-y-4">
+    <form onSubmit={e => { e.preventDefault(); onSave(initialData ? form : { ...form, id: draftId }) }} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <Field label="Categoria">
           <Select value={form.categoria} onChange={e => set('categoria', e.target.value)}>
@@ -266,13 +268,9 @@ function VideosCurtosForm({ initialData, onSave, onClose }) {
       <div className="flex items-center gap-6 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
-      {initialData?.id ? (
-        <div className="pt-4 border-t border-hairline">
-          <AttachmentsPanel itemType="videosCurtos" itemId={initialData.id} />
-        </div>
-      ) : (
-        <p className="pt-2 text-[11px] text-faint">Salve o vídeo para poder anexar arquivos a ele.</p>
-      )}
+      <div className="pt-4 border-t border-hairline">
+        <AttachmentsPanel itemType="videosCurtos" itemId={initialData?.id || draftId} />
+      </div>
       <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
         <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>
         <Button variant="primary" size="sm" type="submit">{initialData ? 'Salvar' : 'Adicionar'}</Button>

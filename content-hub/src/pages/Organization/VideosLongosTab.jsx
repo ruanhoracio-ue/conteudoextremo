@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useCollection } from '../../store/useStore'
 import { Checkbox } from '../../components/ui/Checkbox'
 import { Badge } from '../../components/ui/Badge'
@@ -262,16 +262,22 @@ export function VideosLongosTab({ onNavigate }) {
 
 function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
   const [form, setForm] = useState(initialData || emptyItem)
+  // id gerado já na criação, para permitir anexos antes de salvar.
+  // Este componente fica montado entre aberturas, então regenera a cada "Novo".
+  const [draftId, setDraftId] = useState(() => crypto.randomUUID())
 
-  useState(() => {
-    setForm(initialData || emptyItem)
-  }, [initialData])
+  useEffect(() => {
+    if (isOpen && !initialData) {
+      setForm(emptyItem)
+      setDraftId(crypto.randomUUID())
+    }
+  }, [isOpen, initialData])
 
   const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
 
   function handleSubmit(e) {
     e.preventDefault()
-    onSave(form)
+    onSave(initialData ? form : { ...form, id: draftId })
     setForm(emptyItem)
   }
 
@@ -318,13 +324,9 @@ function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
             <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />
           ))}
         </div>
-        {initialData?.id ? (
-          <div className="pt-4 border-t border-hairline">
-            <AttachmentsPanel itemType="videosLongos" itemId={initialData.id} />
-          </div>
-        ) : (
-          <p className="pt-2 text-[11px] text-faint">Salve o vídeo para poder anexar arquivos a ele.</p>
-        )}
+        <div className="pt-4 border-t border-hairline">
+          <AttachmentsPanel itemType="videosLongos" itemId={initialData?.id || draftId} />
+        </div>
         <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
           <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>
           <Button variant="primary" size="sm" type="submit">{initialData ? 'Salvar' : 'Adicionar'}</Button>
