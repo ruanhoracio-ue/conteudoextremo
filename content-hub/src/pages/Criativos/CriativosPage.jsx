@@ -8,7 +8,6 @@ import { useAuth } from '../../store/AuthContext'
 import { useSpotlight } from '../../lib/useSpotlight'
 import { ImportCriativosSheetModal } from '../../components/ImportCriativosSheetModal'
 import { Button } from '../../components/ui/Button'
-import { UploadButton } from '../../components/ui/UploadButton'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { toast } from '../../components/ui/Toast'
 import { exportToCSV } from '../../store/storage'
@@ -142,6 +141,18 @@ export function CriativosPage() {
       await updateInSupabase('criativos', id, { status: newStatus })
     } catch (err) {
       console.error('Erro ao atualizar status:', err)
+    } finally {
+      dirtyRef.current = false
+    }
+  }
+
+  const handleInlineTagChange = async (id, newTag) => {
+    dirtyRef.current = true
+    setCriativos(prev => prev.map(c => c.id === id ? { ...c, tag: newTag } : c))
+    try {
+      await updateInSupabase('criativos', id, { tag: newTag })
+    } catch (err) {
+      console.error('Erro ao atualizar tag:', err)
     } finally {
       dirtyRef.current = false
     }
@@ -449,8 +460,6 @@ export function CriativosPage() {
                 <th className="px-4 py-3.5 min-w-[140px]">Gravação</th>
                 <th className="px-4 py-3.5 min-w-[80px]">Tag</th>
                 <th className="px-4 py-3.5 min-w-[280px]">Nome do Arquivo</th>
-                <th className="px-4 py-3.5 min-w-[140px]">Link Pasta Base</th>
-                <th className="px-4 py-3.5 min-w-[140px]">Arquivo Finalizado</th>
                 <th className="px-4 py-3.5 text-right min-w-[80px]">Ações</th>
               </tr>
             </thead>
@@ -509,15 +518,22 @@ export function CriativosPage() {
                       {item.gravacao || '—'}
                     </td>
 
-                    {/* Tag */}
+                    {/* Tag Dropdown Inline */}
                     <td className="px-4 py-3">
-                      {item.tag ? (
-                        <span className="inline-block px-2 py-0.5 rounded bg-emerald/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                          {item.tag}
-                        </span>
-                      ) : (
-                        <span className="text-faint">—</span>
-                      )}
+                      <select
+                        value={item.tag || ''}
+                        disabled={!canEdit}
+                        onChange={(e) => handleInlineTagChange(item.id, e.target.value)}
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border transition-all cursor-pointer ${
+                          item.tag
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                            : 'bg-surface text-mute border-hairline'
+                        } ${!canEdit ? 'opacity-80 cursor-not-allowed' : ''}`}
+                      >
+                        <option value="">— Sem tag —</option>
+                        <option value="Máquina">Máquina</option>
+                        <option value="Perpétuo">Perpétuo</option>
+                      </select>
                     </td>
 
                     {/* Nome Arquivo */}
@@ -530,56 +546,6 @@ export function CriativosPage() {
                       >
                         {item.nomeArquivo}
                       </button>
-                    </td>
-
-                    {/* Link Pasta Base (Drive) */}
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {item.linkPastaBase ? (
-                        <div className="flex items-center gap-1.5">
-                          <a
-                            href={item.linkPastaBase}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 text-[11px] font-medium transition-colors"
-                          >
-                            <Folder size={12} /> Pasta Base <ExternalLink size={10} />
-                          </a>
-                          <button
-                            onClick={() => handleCopyLink(item.linkPastaBase, `${item.id}-base`)}
-                            className="p-1 text-faint hover:text-ink transition-colors"
-                            title="Copiar Link"
-                          >
-                            {copiedId === `${item.id}-base` ? <Check size={12} className="text-emerald" /> : <Copy size={12} />}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-faint text-[11px]">Sem link</span>
-                      )}
-                    </td>
-
-                    {/* Arquivo Finalizado (Drive) */}
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {item.arquivoFinalizado ? (
-                        <div className="flex items-center gap-1.5">
-                          <a
-                            href={item.arquivoFinalizado}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 text-[11px] font-medium transition-colors"
-                          >
-                            <CheckCircle2 size={12} /> Finalizado <ExternalLink size={10} />
-                          </a>
-                          <button
-                            onClick={() => handleCopyLink(item.arquivoFinalizado, `${item.id}-fin`)}
-                            className="p-1 text-faint hover:text-ink transition-colors"
-                            title="Copiar Link"
-                          >
-                            {copiedId === `${item.id}-fin` ? <Check size={12} className="text-emerald" /> : <Copy size={12} />}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-faint text-[11px]">Pendente</span>
-                      )}
                     </td>
 
                     {/* Actions */}
@@ -698,41 +664,15 @@ export function CriativosPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-ink mb-1">Tag / Distintivo</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.tag}
                     onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                    placeholder="Ex: Máquina, 7, 3..."
                     className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:border-emerald focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1">Link Pasta Base (Google Drive)</label>
-                <input
-                  type="url"
-                  value={formData.linkPastaBase}
-                  onChange={(e) => setFormData({ ...formData, linkPastaBase: e.target.value })}
-                  placeholder="https://drive.google.com/..."
-                  className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:border-emerald focus:outline-none font-mono text-[11px]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1">Arquivo Finalizado (link ou upload)</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    value={formData.arquivoFinalizado}
-                    onChange={(e) => setFormData({ ...formData, arquivoFinalizado: e.target.value })}
-                    placeholder="https://... ou clique em Subir"
-                    className="w-full rounded-xl border border-hairline bg-surface px-3 py-2 text-xs text-ink focus:border-emerald focus:outline-none font-mono text-[11px]"
-                  />
-                  <UploadButton
-                    onUploaded={(url) => setFormData((f) => ({ ...f, arquivoFinalizado: url }))}
-                    onError={() => toast('Falha no upload. Tente novamente.')}
-                  />
+                  >
+                    <option value="">— Sem tag —</option>
+                    <option value="Máquina">Máquina</option>
+                    <option value="Perpétuo">Perpétuo</option>
+                  </select>
                 </div>
               </div>
 
