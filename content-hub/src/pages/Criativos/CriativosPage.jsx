@@ -116,6 +116,7 @@ export function CriativosPage() {
   const finalizadosCount = criativos.filter(c => c.status === 'Finalizado').length
   const filaCount = criativos.filter(c => c.status === 'Fila').length
   const emEdicaoCount = criativos.filter(c => c.status === 'Em Edição').length
+  const editadoCount = criativos.filter(c => c.status === 'Editado').length
   const percentFinalizado = totalCount > 0 ? Math.round((finalizadosCount / totalCount) * 100) : 0
 
   // Operations
@@ -411,6 +412,7 @@ export function CriativosPage() {
               <option value="Todos">Todos Status ({totalCount})</option>
               <option value="Fila">Fila ({filaCount})</option>
               <option value="Em Edição">Em Edição ({emEdicaoCount})</option>
+              <option value="Editado">Editado ({editadoCount})</option>
               <option value="Finalizado">Finalizado ({finalizadosCount})</option>
             </select>
           </div>
@@ -488,6 +490,8 @@ export function CriativosPage() {
                         className={`rounded-full px-2.5 py-1 text-[11px] font-semibold border transition-all cursor-pointer ${
                           item.status === 'Finalizado'
                             ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                            : item.status === 'Editado'
+                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
                             : item.status === 'Em Edição'
                             ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
                             : 'bg-surface text-mute border-hairline'
@@ -495,6 +499,7 @@ export function CriativosPage() {
                       >
                         <option value="Fila">Fila</option>
                         <option value="Em Edição">Em Edição</option>
+                        <option value="Editado">Editado</option>
                         <option value="Finalizado">Finalizado</option>
                       </select>
                     </td>
@@ -637,6 +642,7 @@ export function CriativosPage() {
                   >
                     <option value="Fila">Fila</option>
                     <option value="Em Edição">Em Edição</option>
+                    <option value="Editado">Editado</option>
                     <option value="Finalizado">Finalizado</option>
                   </select>
                 </div>
