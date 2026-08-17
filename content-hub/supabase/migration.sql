@@ -161,3 +161,6 @@ create policy "Allow all for anon" on calendario for all using (true) with check
 create policy "Allow all for anon" on producao for all using (true) with check (true);
 create policy "Allow all for anon" on criativos for all using (true) with check (true);
 create policy "Allow all for anon" on usuarios for all using (true) with check (true);
+
+-- Status "Alteração": campo para anotar o que precisa ser alterado no criativo
+alter table criativos add column if not exists alteracao text default '';

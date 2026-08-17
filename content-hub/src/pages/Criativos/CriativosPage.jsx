@@ -78,6 +78,7 @@ export function CriativosPage() {
     gravacao: '',
     tag: '',
     nomeArquivo: '',
+    alteracao: '',
     linkPastaBase: '',
     arquivoFinalizado: '',
   })
@@ -117,6 +118,7 @@ export function CriativosPage() {
   const filaCount = criativos.filter(c => c.status === 'Fila').length
   const emEdicaoCount = criativos.filter(c => c.status === 'Em Edição').length
   const editadoCount = criativos.filter(c => c.status === 'Editado').length
+  const alteracaoCount = criativos.filter(c => c.status === 'Alteração').length
   const percentFinalizado = totalCount > 0 ? Math.round((finalizadosCount / totalCount) * 100) : 0
 
   // Operations
@@ -210,6 +212,7 @@ export function CriativosPage() {
       gravacao: '',
       tag: '',
       nomeArquivo: '',
+      alteracao: '',
       linkPastaBase: '',
       arquivoFinalizado: '',
     })
@@ -224,6 +227,7 @@ export function CriativosPage() {
       gravacao: item.gravacao || '',
       tag: item.tag || '',
       nomeArquivo: item.nomeArquivo || '',
+      alteracao: item.alteracao || '',
       linkPastaBase: item.linkPastaBase || '',
       arquivoFinalizado: item.arquivoFinalizado || '',
     })
@@ -413,6 +417,7 @@ export function CriativosPage() {
               <option value="Fila">Fila ({filaCount})</option>
               <option value="Em Edição">Em Edição ({emEdicaoCount})</option>
               <option value="Editado">Editado ({editadoCount})</option>
+              <option value="Alteração">Alteração ({alteracaoCount})</option>
               <option value="Finalizado">Finalizado ({finalizadosCount})</option>
             </select>
           </div>
@@ -500,6 +505,7 @@ export function CriativosPage() {
                         <option value="Fila">Fila</option>
                         <option value="Em Edição">Em Edição</option>
                         <option value="Editado">Editado</option>
+                        <option value="Alteração">Alteração</option>
                         <option value="Finalizado">Finalizado</option>
                       </select>
                     </td>
@@ -554,6 +560,11 @@ export function CriativosPage() {
                       >
                         {item.nomeArquivo}
                       </button>
+                      {item.status === 'Alteração' && item.alteracao && (
+                        <p className="mt-0.5 max-w-xs truncate text-[11px] text-red-500 dark:text-red-400" title={item.alteracao}>
+                          ⚠ {item.alteracao}
+                        </p>
+                      )}
                     </td>
 
                     {/* Actions */}
@@ -643,8 +654,18 @@ export function CriativosPage() {
                     <option value="Fila">Fila</option>
                     <option value="Em Edição">Em Edição</option>
                     <option value="Editado">Editado</option>
+                    <option value="Alteração">Alteração</option>
                     <option value="Finalizado">Finalizado</option>
                   </select>
+                  {formData.status === 'Alteração' && (
+                    <textarea
+                      value={formData.alteracao}
+                      onChange={(e) => setFormData({ ...formData, alteracao: e.target.value })}
+                      placeholder="Descreva o que precisa ser alterado..."
+                      rows={3}
+                      className="mt-2 w-full rounded-xl border border-red-500/40 bg-red-500/5 px-3 py-2 text-xs text-ink placeholder:text-faint focus:border-red-500 focus:outline-none resize-none"
+                    />
+                  )}
                 </div>
 
                 <div>
