@@ -237,6 +237,26 @@ export async function adminChangeRole(userId, newRole) {
   return updated
 }
 
+export async function adminChangeName(userId, newName) {
+  const trimmed = (newName || '').trim()
+  if (!trimmed) {
+    throw new Error('O nome de usuário não pode ficar vazio.')
+  }
+
+  if (isSupabaseConfigured) {
+    const updated = await updateUser(userId, { name: trimmed })
+    if (updated) {
+      const list = await fetchUsersList()
+      return list
+    }
+  }
+
+  const users = getLocalUsers()
+  const updated = users.map(u => u.id === userId ? { ...u, name: trimmed } : u)
+  saveLocalUsers(updated)
+  return updated
+}
+
 export async function adminCreateUser({ name, email, password, role }) {
   const normalizedEmail = email.trim().toLowerCase()
 

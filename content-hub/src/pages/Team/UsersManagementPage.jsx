@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../store/AuthContext'
-import { Users, Shield, UserPlus, CheckCircle2, XCircle, Clock, Trash2, ShieldCheck, Eye, Edit3, Lock } from 'lucide-react'
+import { Users, Shield, UserPlus, CheckCircle2, XCircle, Clock, Trash2, ShieldCheck, Eye, Edit3, Lock, Check, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 
 export function UsersManagementPage() {
@@ -10,6 +10,7 @@ export function UsersManagementPage() {
     approveUser,
     rejectUser,
     changeRole,
+    changeName,
     createUserByAdmin,
     deleteUser,
   } = useAuth()
@@ -22,6 +23,28 @@ export function UsersManagementPage() {
     role: 'editor',
   })
   const [errorMsg, setErrorMsg] = useState('')
+  const [editingUserId, setEditingUserId] = useState(null)
+  const [editingName, setEditingName] = useState('')
+
+  const startEditName = (u) => {
+    setEditingUserId(u.id)
+    setEditingName(u.name || '')
+  }
+
+  const cancelEditName = () => {
+    setEditingUserId(null)
+    setEditingName('')
+  }
+
+  const saveEditName = async (userId) => {
+    if (!editingName.trim()) return
+    try {
+      await changeName(userId, editingName)
+      cancelEditName()
+    } catch (err) {
+      window.alert(err.message || 'Erro ao alterar o nome de usuário.')
+    }
+  }
 
   const pendingUsers = allUsers.filter(u => u.status === 'pending')
   const activeUsers = allUsers.filter(u => u.status !== 'pending')
@@ -162,11 +185,51 @@ export function UsersManagementPage() {
                 return (
                   <tr key={u.id} className="table-row-hover">
                     
-                    <td className="px-4 py-3 font-semibold text-ink flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald/10 text-emerald font-bold text-xs">
-                        {u.name?.charAt(0).toUpperCase()}
-                      </div>
-                      {u.name} {isSelf && <span className="text-[10px] text-faint font-normal">(Você)</span>}
+                    <td className="px-4 py-3 font-semibold text-ink">
+                      {editingUserId === u.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            autoFocus
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveEditName(u.id)
+                              if (e.key === 'Escape') cancelEditName()
+                            }}
+                            className="w-44 rounded-lg border border-hairline bg-surface px-2.5 py-1 text-sm font-normal text-ink focus:border-emerald focus:outline-none"
+                            placeholder="Nome de usuário"
+                          />
+                          <button
+                            onClick={() => saveEditName(u.id)}
+                            disabled={!editingName.trim()}
+                            className="p-1.5 rounded-lg text-emerald transition-colors hover:bg-emerald/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="Salvar nome"
+                          >
+                            <Check size={14} />
+                          </button>
+                          <button
+                            onClick={cancelEditName}
+                            className="p-1.5 rounded-lg text-mute transition-colors hover:bg-red-500/10 hover:text-red-500"
+                            title="Cancelar"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald/10 text-emerald font-bold text-xs">
+                            {u.name?.charAt(0).toUpperCase()}
+                          </div>
+                          {u.name} {isSelf && <span className="text-[10px] text-faint font-normal">(Você)</span>}
+                          <button
+                            onClick={() => startEditName(u)}
+                            className="p-1 rounded-lg text-faint transition-colors hover:bg-emerald/10 hover:text-emerald"
+                            title="Alterar nome de usuário"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-4 py-3 font-mono text-mute">

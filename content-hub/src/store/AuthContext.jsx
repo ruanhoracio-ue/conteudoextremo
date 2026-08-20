@@ -10,6 +10,7 @@ import {
   adminApproveUser,
   adminRejectUser,
   adminChangeRole,
+  adminChangeName,
   adminCreateUser,
   adminDeleteUser,
 } from '../lib/authStore'
@@ -99,6 +100,12 @@ export function AuthProvider({ children }) {
     await refreshUsers()
   }
 
+  const handleChangeName = async (userId, newName) => {
+    const updated = await adminChangeName(userId, newName)
+    setAllUsers(updated)
+    await refreshUsers()
+  }
+
   const handleCreateUserByAdmin = async (data) => {
     const newUser = await adminCreateUser(data)
     await refreshUsers()
@@ -135,6 +142,7 @@ export function AuthProvider({ children }) {
         approveUser: handleApprove,
         rejectUser: handleReject,
         changeRole: handleChangeRole,
+        changeName: handleChangeName,
         createUserByAdmin: handleCreateUserByAdmin,
         deleteUser: handleDeleteUser,
         refreshUsers,

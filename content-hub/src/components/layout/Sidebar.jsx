@@ -4,7 +4,7 @@ import { Logo } from '../ui/Logo'
 import { useAuth } from '../../store/AuthContext'
 import {
   LayoutGrid, Calendar, Video, Film, MessageSquareQuote,
-  BarChart3, ChevronRight, Settings, TrendingUp, Users, Bot, PenBox, Pickaxe, FileVideo,
+  BarChart3, ChevronRight, Settings, TrendingUp, Bot, PenBox, Pickaxe, FileVideo,
   ShieldCheck, LogOut, Eye
 } from 'lucide-react'
 
@@ -57,7 +57,6 @@ export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse })
       icon: Settings,
       items: [
         ...(isAdmin ? [{ key: 'usuarios', label: 'Usuários & Permissões', icon: ShieldCheck }] : []),
-        { key: 'equipe', label: 'Equipe', icon: Users },
         { key: 'settings', label: 'Configurações', icon: Settings },
       ],
     },
