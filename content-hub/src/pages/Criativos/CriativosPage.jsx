@@ -189,20 +189,6 @@ export function CriativosPage() {
     }
   }
 
-  const handleClearAll = async () => {
-    if (window.confirm('Tem certeza que deseja zerar e apagar todos os criativos da lista?')) {
-      dirtyRef.current = true
-      setCriativos([])
-      try {
-        await replaceCollection('criativos', [])
-      } catch (err) {
-        console.error('Erro ao zerar lista:', err)
-      } finally {
-        dirtyRef.current = false
-      }
-    }
-  }
-
   const handleOpenAddModal = () => {
     setEditingItem(null)
     setDraftId(`criativo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`)
@@ -284,18 +270,6 @@ export function CriativosPage() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-500/20">
               <Eye size={14} /> Modo Leitura (Visualizador)
             </div>
-          )}
-
-          {canEdit && criativos.length > 0 && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleClearAll}
-              icon={<Trash2 size={16} />}
-              className="text-red-500 hover:text-red-600 border-red-500/20 hover:bg-red-500/10"
-            >
-              Zerar Lista
-            </Button>
           )}
 
           <Button
