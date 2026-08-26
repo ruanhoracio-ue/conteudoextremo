@@ -16,7 +16,8 @@ import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
 import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
-import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Video, Download } from 'lucide-react'
+import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Video, Download, Eye, EyeOff } from 'lucide-react'
+import { useLinkColumn } from '../../lib/useLinkColumn'
 
 const STAGES = ['gravado', 'editado', 'aprovado', 'publicado']
 const STAGE_LABELS = { gravado: 'Gravado', editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -32,6 +33,7 @@ export function VideosLongosTab({ onNavigate }) {
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
+  const { showLink, toggleLink } = useLinkColumn()
   const [filterCat, setFilterCat] = useState('')
   const [filterQuem, setFilterQuem] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
@@ -134,6 +136,15 @@ export function VideosLongosTab({ onNavigate }) {
           {quemList.map(q => <option key={q} value={q}>{q}</option>)}
         </Select>
         <div className="flex-1" />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleLink}
+          icon={showLink ? <EyeOff size={14} /> : <Eye size={14} />}
+          title={showLink ? 'Ocultar a coluna Link da tabela' : 'Mostrar a coluna Link na tabela'}
+        >
+          {showLink ? 'Ocultar Link' : 'Mostrar Link'}
+        </Button>
         <Button variant="ghost" size="sm" onClick={() => exportToCSV(items, 'videos-longos')} icon={<Download size={14} />}>
           CSV
         </Button>
@@ -158,7 +169,9 @@ export function VideosLongosTab({ onNavigate }) {
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Categoria</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Onde/Quem</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Tema</th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute w-24">Link</th>
+                {showLink && (
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute w-24">Link</th>
+                )}
                 <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-mute w-20">Ações</th>
               </tr>
             </thead>
@@ -198,21 +211,23 @@ export function VideosLongosTab({ onNavigate }) {
                     </div>
                     {item.descricao && <p className="text-xs text-mute mt-0.5 truncate max-w-xs">{item.descricao}</p>}
                   </td>
-                  <td className="px-4 py-4">
-                    {item.linkFinalizado ? (
-                      <a
-                        href={item.linkFinalizado}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-emerald hover:text-emerald-deep underline underline-offset-2 transition-colors max-w-[200px] truncate"
-                      >
-                        <ExternalLink size={12} className="shrink-0" />
-                        <span className="truncate">{item.linkFinalizado.replace(/^https?:\/\//, '')}</span>
-                      </a>
-                    ) : (
-                      <span className="text-faint">—</span>
-                    )}
-                  </td>
+                  {showLink && (
+                    <td className="px-4 py-4">
+                      {item.linkFinalizado ? (
+                        <a
+                          href={item.linkFinalizado}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-emerald hover:text-emerald-deep underline underline-offset-2 transition-colors max-w-[200px] truncate"
+                        >
+                          <ExternalLink size={12} className="shrink-0" />
+                          <span className="truncate">{item.linkFinalizado.replace(/^https?:\/\//, '')}</span>
+                        </a>
+                      ) : (
+                        <span className="text-faint">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-end gap-1">
                       <ClaudeButton context={item} title="Claude — Vídeo Longo" />
