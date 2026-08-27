@@ -18,6 +18,7 @@ import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Video, Download, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
+import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
 const STAGES = ['gravado', 'editado', 'aprovado', 'publicado']
 const STAGE_LABELS = { gravado: 'Gravado', editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -33,9 +34,10 @@ export function VideosLongosTab({ onNavigate }) {
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
-  const { showLink, toggleLink } = useLinkColumn()
+  const { showLink, toggleLink } = useLinkColumn('videos-longos')
   const [filterCat, setFilterCat] = useState('')
   const [filterQuem, setFilterQuem] = useState('')
+  const [filterStage, setFilterStage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -48,13 +50,14 @@ export function VideosLongosTab({ onNavigate }) {
     return items.filter(item => {
       if (filterCat && item.categoria !== filterCat) return false
       if (filterQuem && item.ondeQuem !== filterQuem) return false
+      if (!matchesStageFilter(item, filterStage)) return false
       if (search) {
         const s = search.toLowerCase()
         if (!item.tema?.toLowerCase().includes(s) && !item.descricao?.toLowerCase().includes(s)) return false
       }
       return true
     })
-  }, [items, search, filterCat, filterQuem])
+  }, [items, search, filterCat, filterQuem, filterStage])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -134,6 +137,12 @@ export function VideosLongosTab({ onNavigate }) {
         <Select value={filterQuem} onChange={e => setFilterQuem(e.target.value)} className="w-40 !h-10">
           <option value="">Todos Onde/Quem</option>
           {quemList.map(q => <option key={q} value={q}>{q}</option>)}
+        </Select>
+        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-44 !h-10">
+          <option value="">Todos os status</option>
+          {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
         </Select>
         <div className="flex-1" />
         <Button

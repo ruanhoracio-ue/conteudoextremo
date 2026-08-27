@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
 
-// Preferência de exibição da coluna "Link" nas tabelas de Organização
-// (Vídeos Curtos, Cortes, Vídeos Longos). Fica escondida por padrão? Não:
-// mantém o comportamento atual (visível) e lembra a escolha do usuário
-// neste navegador. Os uploads passaram a ser feitos dentro do app, então
-// a coluna virou opcional.
-const STORAGE_KEY = 'content_hub_show_link_column'
+// Preferência de exibição da coluna "Link" nas tabelas de Organização.
+// Cada aba (Vídeos Curtos, Carrossel, Vídeos Longos) guarda a sua própria
+// escolha, por isso a chave recebe um escopo. Os uploads passaram a ser
+// feitos dentro do app, então a coluna virou opcional — mas o padrão
+// continua sendo visível, para não esconder nada sem o usuário pedir.
+const PREFIX = 'content_hub_show_link_column'
 
-export function useLinkColumn() {
+export function useLinkColumn(scope) {
+  const storageKey = `${PREFIX}:${scope}`
+
   const [showLink, setShowLink] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) !== 'false'
+      return localStorage.getItem(storageKey) !== 'false'
     } catch {
       return true
     }
@@ -18,11 +20,11 @@ export function useLinkColumn() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, String(showLink))
+      localStorage.setItem(storageKey, String(showLink))
     } catch (e) {
       console.error('Erro ao salvar preferência da coluna Link:', e)
     }
-  }, [showLink])
+  }, [storageKey, showLink])
 
   const toggleLink = () => setShowLink(v => !v)
 

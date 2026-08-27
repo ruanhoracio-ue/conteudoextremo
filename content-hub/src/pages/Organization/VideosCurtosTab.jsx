@@ -18,6 +18,7 @@ import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Film, Download, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
+import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
 const STAGES = ['editado', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -33,8 +34,9 @@ export function VideosCurtosTab({ onNavigate }) {
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
-  const { showLink, toggleLink } = useLinkColumn()
+  const { showLink, toggleLink } = useLinkColumn('videos-curtos')
   const [filterCat, setFilterCat] = useState('')
+  const [filterStage, setFilterStage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -45,10 +47,11 @@ export function VideosCurtosTab({ onNavigate }) {
   const filtered = useMemo(() => {
     return items.filter(item => {
       if (filterCat && item.categoria !== filterCat) return false
+      if (!matchesStageFilter(item, filterStage)) return false
       if (search && !item.titulo?.toLowerCase().includes(search.toLowerCase())) return false
       return true
     })
-  }, [items, search, filterCat])
+  }, [items, search, filterCat, filterStage])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -123,6 +126,12 @@ export function VideosCurtosTab({ onNavigate }) {
         <Select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="w-40 !h-10">
           <option value="">Todas categorias</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
+        </Select>
+        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-44 !h-10">
+          <option value="">Todos os status</option>
+          {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
         </Select>
         <div className="flex-1" />
         <Button

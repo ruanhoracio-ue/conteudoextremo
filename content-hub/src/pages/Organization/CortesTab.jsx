@@ -7,7 +7,7 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
-import { Field, Input, Textarea } from '../../components/ui/Input'
+import { Field, Input, Select, Textarea } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
 import { UploadButton } from '../../components/ui/UploadButton'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
@@ -18,6 +18,7 @@ import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, LayoutGrid, Download, Folder, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
+import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
 const STAGES = ['editado', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -32,20 +33,22 @@ export function CortesTab({ onNavigate }) {
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
-  const { showLink, toggleLink } = useLinkColumn()
+  const { showLink, toggleLink } = useLinkColumn('cortes')
+  const [filterStage, setFilterStage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [scheduleTarget, setScheduleTarget] = useState(null)
 
   const filtered = useMemo(() => {
-    if (!search) return items
     const s = search.toLowerCase()
-    return items.filter(item =>
-      item.titulo?.toLowerCase().includes(s) ||
-      item.conteudoOriginal?.toLowerCase().includes(s)
-    )
-  }, [items, search])
+    return items.filter(item => {
+      if (!matchesStageFilter(item, filterStage)) return false
+      if (!search) return true
+      return item.titulo?.toLowerCase().includes(s) ||
+        item.conteudoOriginal?.toLowerCase().includes(s)
+    })
+  }, [items, search, filterStage])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -117,6 +120,12 @@ export function CortesTab({ onNavigate }) {
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar por título ou conteúdo original..." className="w-72" />
+        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-44 !h-10">
+          <option value="">Todos os status</option>
+          {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </Select>
         <div className="flex-1" />
         <Button
           variant="ghost"
