@@ -34,7 +34,7 @@ export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse })
       items: [
         { key: 'videos-longos', label: 'Vídeos Longos', icon: Video },
         { key: 'videos-curtos', label: 'Vídeos Curtos (Reels)', icon: Film },
-        { key: 'cortes', label: 'Carrossel / Cortes', icon: LayoutGrid },
+        { key: 'cortes', label: 'Carrossel', icon: LayoutGrid },
         { key: 'frases', label: 'Frases', icon: MessageSquareQuote },
       ],
     },

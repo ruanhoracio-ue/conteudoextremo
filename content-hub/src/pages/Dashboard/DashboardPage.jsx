@@ -134,7 +134,7 @@ export function DashboardPage({ onNavigate }) {
       }
     })
 
-    // Map 4: Carrossel / Cortes
+    // Map 4: Carrossel
     const coMapped = co.map(i => {
       const isFinished = !!i.publicado
       const isApproved = !isFinished && !!i.aprovado
@@ -150,7 +150,7 @@ export function DashboardPage({ onNavigate }) {
 
       return {
         id: `co-${i.id}`,
-        sector: 'Carrossel / Cortes',
+        sector: 'Carrossel',
         sectorKey: 'cortes',
         icon: LayoutGrid,
         title: i.titulo || 'Carrossel sem título',
