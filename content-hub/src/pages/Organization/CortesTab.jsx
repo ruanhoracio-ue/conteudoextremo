@@ -6,6 +6,7 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
+import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { Field, Input, Select } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
 import { exportToCSV } from '../../store/storage'
@@ -205,7 +206,7 @@ export function CortesTab({ onNavigate }) {
 
 function CortesForm({ initialData, onSave, onClose }) {
   const [form, setForm] = useState(initialData || emptyItem)
-  // id gerado já na criação, para o item nascer com identidade estável
+  // id gerado já na criação, para permitir anexar arquivos antes de salvar
   const [draftId] = useState(() => crypto.randomUUID())
   const set = (f, v) => setForm(prev => ({ ...prev, [f]: v }))
 
@@ -218,6 +219,9 @@ function CortesForm({ initialData, onSave, onClose }) {
       </Field>
       <div className="flex items-center gap-6 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
+      </div>
+      <div className="pt-4 border-t border-hairline">
+        <AttachmentsPanel itemType="cortes" itemId={initialData?.id || draftId} />
       </div>
       <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
         <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>
