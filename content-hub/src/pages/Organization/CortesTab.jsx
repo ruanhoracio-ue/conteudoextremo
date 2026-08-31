@@ -221,7 +221,7 @@ function CortesForm({ initialData, onSave, onClose }) {
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
       <div className="pt-4 border-t border-hairline">
-        <AttachmentsPanel itemType="cortes" itemId={initialData?.id || draftId} />
+        <AttachmentsPanel itemType="cortes" itemId={initialData?.id || draftId} zipName={form.titulo} />
       </div>
       <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
         <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>

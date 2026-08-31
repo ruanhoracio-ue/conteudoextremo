@@ -4,6 +4,7 @@ import { cn } from '../lib/cn'
 import { uploadMedia, deleteMedia, listMedia } from '../lib/mediaUpload'
 import { toast } from './ui/Toast'
 import { ConfirmDialog } from './ui/ConfirmDialog'
+import { createZip } from '../lib/zip'
 
 function formatSize(bytes) {
   if (bytes == null) return ''
@@ -25,7 +26,7 @@ function iconFor(contentType) {
  *
  * Uso: <AttachmentsPanel itemType="videosLongos" itemId={item.id} />
  */
-export function AttachmentsPanel({ itemType, itemId, className }) {
+export function AttachmentsPanel({ itemType, itemId, className, zipName }) {
   const prefix = `${itemType}/${itemId}`
   const inputRef = useRef(null)
   const [files, setFiles] = useState([])
@@ -34,6 +35,7 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
   const [uploads, setUploads] = useState([]) // [{name, progress}]
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [preview, setPreview] = useState(null)
+  const [zipping, setZipping] = useState(null) // { feitos, total }
 
   const refresh = useCallback(async () => {
     try {
@@ -46,6 +48,39 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
   }, [prefix])
 
   useEffect(() => { refresh() }, [refresh])
+
+  async function handleDownloadAll() {
+    if (!files.length || zipping) return
+
+    setZipping({ feitos: 0, total: files.length })
+    try {
+      const entries = []
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i]
+        const res = await fetch(f.url)
+        if (!res.ok) throw new Error(`Não foi possível baixar "${f.name}".`)
+        entries.push({ name: f.name, blob: await res.blob() })
+        setZipping({ feitos: i + 1, total: files.length })
+      }
+
+      const blob = await createZip(entries)
+      const base = (zipName || `anexos-${itemType}`).replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 80)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${base || 'anexos'}.zip`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
+      toast(`${entries.length} ${entries.length === 1 ? 'arquivo baixado' : 'arquivos baixados'} em .zip`, 'success')
+    } catch (e) {
+      console.error('Erro ao gerar o zip:', e)
+      toast(e.message || 'Falha ao gerar o .zip.', 'error')
+    } finally {
+      setZipping(null)
+    }
+  }
 
   async function handleFiles(fileList) {
     const selected = Array.from(fileList || [])
@@ -89,6 +124,18 @@ export function AttachmentsPanel({ itemType, itemId, className }) {
         <span className="text-xs font-medium uppercase tracking-widest text-mute">
           Anexos {files.length > 0 && <span className="text-emerald">({files.length})</span>}
         </span>
+        {files.length > 0 && (
+          <button
+            type="button"
+            onClick={handleDownloadAll}
+            disabled={!!zipping}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium text-mute transition-colors hover:bg-emerald/10 hover:text-emerald disabled:cursor-not-allowed disabled:opacity-60"
+            title="Baixar todos os anexos em um arquivo .zip"
+          >
+            {zipping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+            {zipping ? `Compactando ${zipping.feitos}/${zipping.total}` : 'Baixar tudo'}
+          </button>
+        )}
       </div>
 
       {/* Dropzone */}
