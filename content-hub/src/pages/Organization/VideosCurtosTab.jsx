@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useCollection } from '../../store/useStore'
 import { Checkbox } from '../../components/ui/Checkbox'
+import { StageStatusSelect } from '../../components/ui/StageStatusSelect'
+import { updatesForStatus } from '../../lib/stageStatus'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { SearchBar } from '../../components/ui/SearchBar'
@@ -30,7 +32,7 @@ const emptyItem = {
 }
 
 export function VideosCurtosTab({ onNavigate }) {
-  const { items, addItem, updateItem, deleteItem, toggleStage } = useCollection('videosCurtos')
+  const { items, addItem, updateItem, deleteItem } = useCollection('videosCurtos')
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
@@ -56,11 +58,12 @@ export function VideosCurtosTab({ onNavigate }) {
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
 
-  function handleStageClick(item, stage) {
-    const isBecomingApproved = stage === 'aprovado' && !item.aprovado
-    toggleStage(item.id, stage, STAGES)
+  function handleStatusChange(item, status) {
+    const updates = updatesForStatus(STAGES, status)
+    const virouAprovado = updates.aprovado && !item.aprovado
+    updateItem(item.id, updates)
 
-    if (isBecomingApproved) {
+    if (virouAprovado) {
       setScheduleTarget({
         id: item.id,
         title: item.titulo,
@@ -158,11 +161,7 @@ export function VideosCurtosTab({ onNavigate }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hairline bg-elevated/50">
-                {STAGES.map(s => (
-                  <th key={s} className="px-3 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-mute w-20">
-                    {STAGE_LABELS[s]}
-                  </th>
-                ))}
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute w-32">Status</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Categoria</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Título</th>
                 {showLink && (
@@ -177,11 +176,14 @@ export function VideosCurtosTab({ onNavigate }) {
                   'border-b border-hairline-soft table-row-hover',
                   isPending(item) && 'bg-amber-50/30 dark:bg-amber-950/10',
                 )}>
-                  {STAGES.map(stage => (
-                    <td key={stage} className="px-3 py-4 text-center">
-                      <Checkbox checked={item[stage]} onChange={() => handleStageClick(item, stage)} />
-                    </td>
-                  ))}
+                  <td className="px-4 py-4">
+                    <StageStatusSelect
+                      item={item}
+                      stages={STAGES}
+                      labels={STAGE_LABELS}
+                      onChange={(status) => handleStatusChange(item, status)}
+                    />
+                  </td>
                   <td className="px-4 py-4">
                     {item.categoria && <Badge tone="soft">{item.categoria}</Badge>}
                   </td>
