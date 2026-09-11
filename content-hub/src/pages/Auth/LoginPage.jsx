@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Logo } from '../../components/ui/Logo'
+import { DotPattern } from '../../components/ui/DotPattern'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../store/AuthContext'
 import { Shield, Lock, Mail, User, Clock, AlertCircle, CheckCircle2, ArrowRight, KeyRound } from 'lucide-react'
@@ -40,10 +41,17 @@ export function LoginPage() {
   }
 
   return (
-    <div className="ds-app min-h-screen bg-canvas flex flex-col items-center justify-center p-4 antialiased">
-      
+    <div className="ds-app relative min-h-screen overflow-hidden bg-canvas flex flex-col items-center justify-center p-4 antialiased">
+      {/* Fundo de pontos com halo atrás do card */}
+      <DotPattern
+        width={20}
+        height={20}
+        cr={1.2}
+        className="fill-ink/15 [mask-image:radial-gradient(460px_circle_at_center,white,transparent)]"
+      />
+
       {/* Container */}
-      <div className="w-full max-w-md space-y-6">
+      <div className="relative z-10 w-full max-w-md space-y-6">
         
         {/* Brand Header */}
         <div className="text-center">
