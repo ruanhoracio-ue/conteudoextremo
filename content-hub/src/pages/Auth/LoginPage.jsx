@@ -47,7 +47,8 @@ export function LoginPage() {
         width={20}
         height={20}
         cr={1.2}
-        className="fill-ink/15 [mask-image:radial-gradient(460px_circle_at_center,white,transparent)]"
+        fill="fill-ink/15"
+        className="[mask-image:radial-gradient(460px_circle_at_center,white,transparent)]"
       />
 
       {/* Container */}

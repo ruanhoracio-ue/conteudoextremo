@@ -6,11 +6,14 @@ import { cn } from '../../lib/cn'
  *
  * Posiciona-se em absolute/inset-0, então o container pai precisa ser
  * `relative` (e normalmente `overflow-hidden`), e o conteúdo por cima deve
- * ter `relative z-10`. A cor vem da classe `fill-*`; o padrão usa `ink` com
- * opacidade baixa para funcionar nos dois temas. Combine com uma máscara
- * radial para o efeito de "halo" atrás de um elemento central, por exemplo:
+ * ter `relative z-10`. A cor vai na prop `fill` (uma classe `fill-*`), e não
+ * em `className`: o `cn` do projeto não faz merge de classes Tailwind, então
+ * um fill no className conviveria com o padrão e venceria só por ordem do
+ * CSS. O padrão usa `ink` com opacidade baixa para funcionar nos dois temas.
+ * Combine com uma máscara radial para o efeito de "halo" atrás de um
+ * elemento central, por exemplo:
  *
- *   <DotPattern className="[mask-image:radial-gradient(420px_circle_at_center,white,transparent)]" />
+ *   <DotPattern fill="fill-ink/15" className="[mask-image:radial-gradient(420px_circle_at_center,white,transparent)]" />
  */
 export function DotPattern({
   width = 16,
@@ -20,6 +23,7 @@ export function DotPattern({
   cx = 1,
   cy = 1,
   cr = 1,
+  fill = 'fill-ink/10',
   className,
   ...props
 }) {
@@ -28,7 +32,7 @@ export function DotPattern({
   return (
     <svg
       aria-hidden="true"
-      className={cn('pointer-events-none absolute inset-0 h-full w-full fill-ink/10', className)}
+      className={cn('pointer-events-none absolute inset-0 h-full w-full', fill, className)}
       {...props}
     >
       <defs>
