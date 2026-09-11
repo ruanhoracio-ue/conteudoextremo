@@ -20,7 +20,15 @@ import { cofreRouter } from './routes/cofre.js'
 
 const app = new Hono().basePath('/api')
 
-app.use('*', cors())
+// CORS: as demais rotas continuam abertas como antes. A rota do cofre só
+// aceita chamadas da própria origem do app — assim uma página de terceiros
+// aberta no navegador de alguém da equipe não consegue nem tentar chamá-la.
+app.use('*', cors({
+  origin: (origin, c) => {
+    if (!c.req.path.startsWith('/api/cofre')) return '*'
+    return origin && origin === new URL(c.req.url).origin ? origin : null
+  },
+}))
 
 app.route('/auth', authRouter)
 app.route('/data', dataRouter)
