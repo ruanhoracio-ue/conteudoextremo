@@ -5,11 +5,11 @@ import { useAuth } from '../../store/AuthContext'
 import {
   LayoutGrid, Calendar, Video, Film, MessageSquareQuote,
   BarChart3, ChevronRight, Settings, TrendingUp, Bot, PenBox, Pickaxe, FileVideo,
-  ShieldCheck, LogOut, Eye
+  ShieldCheck, LogOut, Eye, KeyRound
 } from 'lucide-react'
 
 export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse }) {
-  const { user, isAdmin, logout } = useAuth()
+  const { user, isAdmin, canEdit, logout } = useAuth()
 
   const navSections = [
     {
@@ -57,6 +57,7 @@ export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse })
       icon: Settings,
       items: [
         ...(isAdmin ? [{ key: 'usuarios', label: 'Usuários & Permissões', icon: ShieldCheck }] : []),
+        ...(canEdit ? [{ key: 'cofre', label: 'Cofre de Senhas', icon: KeyRound }] : []),
         { key: 'settings', label: 'Configurações', icon: Settings },
       ],
     },

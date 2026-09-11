@@ -17,6 +17,7 @@ import { ProducaoPage } from './pages/Producao/ProducaoPage'
 import { MineracaoPage } from './pages/Mineracao/MineracaoPage'
 import { CriativosPage } from './pages/Criativos/CriativosPage'
 import { UsersManagementPage } from './pages/Team/UsersManagementPage'
+import { CofrePage } from './pages/Cofre/CofrePage'
 import { ToastContainer } from './components/ui/Toast'
 import { Tabs } from './components/ui/Tabs'
 import { ImportSheetModal } from './components/ImportSheetModal'
@@ -83,7 +84,7 @@ const pageDescriptions = {
 }
 
 function MainAppContent() {
-  const { isAuthenticated, isAdmin } = useAuth()
+  const { isAuthenticated, isAdmin, canEdit } = useAuth()
   const [activePage, setActivePage] = useState('dashboard')
   const [splashDone, setSplashDone] = useState(false)
 
@@ -102,6 +103,7 @@ function MainAppContent() {
             {isOrgPage && <OrganizationPage activeSubTab={activePage} onNavigate={setActivePage} />}
             {activePage === 'criativos' && <CriativosPage />}
             {activePage === 'usuarios' && isAdmin && <UsersManagementPage />}
+            {activePage === 'cofre' && canEdit && <CofrePage />}
             {activePage === 'producao' && <ProducaoPage onNavigate={setActivePage} />}
             {activePage === 'mineracao' && <MineracaoPage />}
             {activePage === 'calendario' && <CalendarPage />}
