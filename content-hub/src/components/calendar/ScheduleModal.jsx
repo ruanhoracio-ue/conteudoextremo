@@ -4,7 +4,7 @@ import { Button } from '../ui/Button'
 import { Field, Input, Select } from '../ui/Input'
 import { Calendar, ArrowRight } from 'lucide-react'
 
-const FORMATOS = ['Reels', 'Carrossel', 'Estático']
+const FORMATOS = ['Reels', 'Carrossel', 'Estático', 'YouTube']
 
 export function ScheduleModal({ isOpen, onClose, item, onConfirm }) {
   const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split('T')[0]

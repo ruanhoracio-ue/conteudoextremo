@@ -72,7 +72,7 @@ export function VideosLongosTab({ onNavigate }) {
         id: item.id,
         title: item.tema,
         type: 'Vídeo Longo',
-        defaultFormat: 'Reels',
+        defaultFormat: 'YouTube',
       })
     }
   }
@@ -95,7 +95,7 @@ export function VideosLongosTab({ onNavigate }) {
         id: savedId || 'new',
         title: data.tema,
         type: 'Vídeo Longo',
-        defaultFormat: 'Reels',
+        defaultFormat: 'YouTube',
       })
     }
   }

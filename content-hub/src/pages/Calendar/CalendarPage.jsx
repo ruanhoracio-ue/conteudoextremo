@@ -12,13 +12,14 @@ import { ChevronLeft, ChevronRight, Plus, Calendar, Pencil, Trash2 } from 'lucid
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
-const FORMATOS = ['Carrossel', 'Reels', 'Estático']
+const FORMATOS = ['Carrossel', 'Reels', 'Estático', 'YouTube']
 const STATUSES = ['Rascunho', 'Finalizado', 'Publicado']
 
 const formatColors = {
   Carrossel: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800',
   Reels: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-800',
   Estático: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800',
+  YouTube: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800',
 }
 
 const statusTone = {
