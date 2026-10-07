@@ -25,6 +25,14 @@ export default function SplashScreen({ onFinish }) {
   }, [])
 
   useEffect(() => {
+    // Em aba oculta o requestAnimationFrame não dispara e a animação nunca
+    // termina — quem abre o app em segundo plano ficaria preso no splash.
+    // Ninguém vê a animação nesse caso, então pula direto para o app.
+    if (document.hidden) {
+      const t = setTimeout(onFinish, 0)
+      return () => clearTimeout(t)
+    }
+
     const drawMs = 1000
     const fillMs = 300
     const zoomMs = 600

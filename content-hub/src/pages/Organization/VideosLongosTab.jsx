@@ -19,6 +19,8 @@ import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, ExternalLink, Video, Download, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
+import { ordenar, OPCOES_ORDEM } from '../../lib/ordenacao'
+import { useOrdenacao } from '../../lib/useOrdenacao'
 
 const STAGES = ['gravado', 'editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
 const STAGE_LABELS = { gravado: 'Gravado', editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -38,6 +40,7 @@ export function VideosLongosTab({ onNavigate }) {
   const [filterCat, setFilterCat] = useState('')
   const [filterQuem, setFilterQuem] = useState('')
   const [filterStage, setFilterStage] = useState('')
+  const [ordem, setOrdem] = useOrdenacao('videos-longos')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -58,6 +61,8 @@ export function VideosLongosTab({ onNavigate }) {
       return true
     })
   }, [items, search, filterCat, filterQuem, filterStage])
+
+  const ordenados = useMemo(() => ordenar(filtered, ordem, { stages: STAGES, titulo: 'tema' }), [filtered, ordem])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -144,6 +149,9 @@ export function VideosLongosTab({ onNavigate }) {
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </Select>
+        <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-48 !h-10" title="Ordenar por">
+          {OPCOES_ORDEM.map(o => <option key={o.value} value={o.value}>Ordenar: {o.label}</option>)}
+        </Select>
         <div className="flex-1" />
         <Button
           variant="ghost"
@@ -181,7 +189,7 @@ export function VideosLongosTab({ onNavigate }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(item => (
+              {ordenados.map(item => (
                 <tr key={item.id} className="border-b border-hairline-soft table-row-hover">
                   <td className="px-4 py-4">
                     <StageStatusSelect

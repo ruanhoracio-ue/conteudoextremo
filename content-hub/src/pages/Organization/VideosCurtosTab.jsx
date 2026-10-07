@@ -21,6 +21,8 @@ import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Film, Download, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
+import { ordenar, OPCOES_ORDEM } from '../../lib/ordenacao'
+import { useOrdenacao } from '../../lib/useOrdenacao'
 
 const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -39,6 +41,7 @@ export function VideosCurtosTab({ onNavigate }) {
   const { showLink, toggleLink } = useLinkColumn('videos-curtos')
   const [filterCat, setFilterCat] = useState('')
   const [filterStage, setFilterStage] = useState('')
+  const [ordem, setOrdem] = useOrdenacao('videos-curtos')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -54,6 +57,8 @@ export function VideosCurtosTab({ onNavigate }) {
       return true
     })
   }, [items, search, filterCat, filterStage])
+
+  const ordenados = useMemo(() => ordenar(filtered, ordem, { stages: STAGES, titulo: 'titulo' }), [filtered, ordem])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -136,6 +141,9 @@ export function VideosCurtosTab({ onNavigate }) {
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </Select>
+        <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-48 !h-10" title="Ordenar por">
+          {OPCOES_ORDEM.map(o => <option key={o.value} value={o.value}>Ordenar: {o.label}</option>)}
+        </Select>
         <div className="flex-1" />
         <Button
           variant="ghost"
@@ -171,7 +179,7 @@ export function VideosCurtosTab({ onNavigate }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(item => (
+              {ordenados.map(item => (
                 <tr key={item.id} className={cn(
                   'border-b border-hairline-soft table-row-hover',
                   isPending(item) && 'bg-amber-50/30 dark:bg-amber-950/10',

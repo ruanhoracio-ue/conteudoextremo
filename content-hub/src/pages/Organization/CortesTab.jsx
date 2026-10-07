@@ -17,6 +17,8 @@ import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, LayoutGrid, Download } from 'lucide-react'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
+import { ordenar, OPCOES_ORDEM } from '../../lib/ordenacao'
+import { useOrdenacao } from '../../lib/useOrdenacao'
 
 const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -31,6 +33,7 @@ export function CortesTab({ onNavigate }) {
 
   const [search, setSearch] = useState('')
   const [filterStage, setFilterStage] = useState('')
+  const [ordem, setOrdem] = useOrdenacao('cortes')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -44,6 +47,8 @@ export function CortesTab({ onNavigate }) {
       return Boolean(item.titulo?.toLowerCase().includes(s))
     })
   }, [items, search, filterStage])
+
+  const ordenados = useMemo(() => ordenar(filtered, ordem, { stages: STAGES, titulo: 'titulo' }), [filtered, ordem])
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -120,6 +125,9 @@ export function CortesTab({ onNavigate }) {
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </Select>
+        <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-48 !h-10" title="Ordenar por">
+          {OPCOES_ORDEM.map(o => <option key={o.value} value={o.value}>Ordenar: {o.label}</option>)}
+        </Select>
         <div className="flex-1" />
         <Button variant="ghost" size="sm" onClick={() => exportToCSV(items, 'cortes')} icon={<Download size={14} />}>
           CSV
@@ -142,7 +150,7 @@ export function CortesTab({ onNavigate }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(item => (
+              {ordenados.map(item => (
                 <tr key={item.id} className="border-b border-hairline-soft table-row-hover">
                   <td className="px-4 py-4">
                     <StageStatusSelect
