@@ -22,8 +22,8 @@ import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Film, Download, Eye, E
 import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
-const STAGES = ['editado', 'aprovado', 'publicado']
-const STAGE_LABELS = { editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
+const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
+const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
 const CATEGORIAS = ['Lo-fi', 'Corte', 'Claude', 'Tiago', 'Tutorial', 'Dica']
 
 const emptyItem = {

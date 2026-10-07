@@ -50,6 +50,15 @@ create table if not exists cortes (
 -- Compatibilidade: adiciona colunas novas em tabelas ja existentes
 alter table cortes add column if not exists publicado boolean default false;
 
+-- Status "Em Aprovação" e "Alteração" nas abas de vídeo (etapas booleanas,
+-- como as demais). Rodar em bancos criados antes desta versão.
+alter table videos_longos add column if not exists em_aprovacao boolean default false;
+alter table videos_longos add column if not exists alteracao boolean default false;
+alter table videos_curtos add column if not exists em_aprovacao boolean default false;
+alter table videos_curtos add column if not exists alteracao boolean default false;
+alter table cortes add column if not exists em_aprovacao boolean default false;
+alter table cortes add column if not exists alteracao boolean default false;
+
 -- 4. Frases
 create table if not exists frases (
   id uuid default gen_random_uuid() primary key,

@@ -80,6 +80,10 @@ export function DashboardPage({ onNavigate }) {
         ? 'Publicado'
         : isApproved
         ? 'Aprovado'
+        : i.alteracao
+        ? 'Alteração'
+        : i.emAprovacao
+        ? 'Em Aprovação'
         : i.editado
         ? 'Editado (Em Análise)'
         : i.gravado
@@ -113,6 +117,10 @@ export function DashboardPage({ onNavigate }) {
         ? 'Publicado'
         : isApproved
         ? 'Aprovado'
+        : i.alteracao
+        ? 'Alteração'
+        : i.emAprovacao
+        ? 'Em Aprovação'
         : i.editado
         ? 'Editado'
         : 'Em Edição'
@@ -144,6 +152,10 @@ export function DashboardPage({ onNavigate }) {
         ? 'Publicado'
         : isApproved
         ? 'Aprovado'
+        : i.alteracao
+        ? 'Alteração'
+        : i.emAprovacao
+        ? 'Em Aprovação'
         : i.editado
         ? 'Editado'
         : 'Fila'

@@ -18,8 +18,8 @@ import { ScheduleModal } from '../../components/calendar/ScheduleModal'
 import { Plus, Pencil, Trash2, LayoutGrid, Download } from 'lucide-react'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
-const STAGES = ['editado', 'aprovado', 'publicado']
-const STAGE_LABELS = { editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
+const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
+const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
 
 const emptyItem = {
   titulo: '', editado: false, aprovado: false, publicado: false,

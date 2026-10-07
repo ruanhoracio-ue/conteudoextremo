@@ -11,24 +11,22 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
 import { Field, Input, Select, Textarea } from '../../components/ui/Input'
 import { toast } from '../../components/ui/Toast'
-import { UploadButton } from '../../components/ui/UploadButton'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { exportToCSV } from '../../store/storage'
-import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
 import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
-import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Video, Download, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, ExternalLink, Video, Download, Eye, EyeOff } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 
-const STAGES = ['gravado', 'editado', 'aprovado', 'publicado']
-const STAGE_LABELS = { gravado: 'Gravado', editado: 'Editado', aprovado: 'Aprovado', publicado: 'Publicado' }
+const STAGES = ['gravado', 'editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
+const STAGE_LABELS = { gravado: 'Gravado', editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
 const CATEGORIAS = ['Aula', 'Vlog', 'React', 'Collab', 'Entrevista', 'Review']
 
 const emptyItem = {
   gravado: false, editado: false, aprovado: false, publicado: false,
-  categoria: '', ondeQuem: '', tema: '', linkFinalizado: '', thumb: '', descricao: '',
+  categoria: '', ondeQuem: '', tema: '', descricao: '',
 }
 
 export function VideosLongosTab({ onNavigate }) {
@@ -126,7 +124,6 @@ export function VideosLongosTab({ onNavigate }) {
     }
   }
 
-  const isPending = (item) => item.aprovado && !item.linkFinalizado
 
   return (
     <div>
@@ -185,10 +182,7 @@ export function VideosLongosTab({ onNavigate }) {
             </thead>
             <tbody>
               {filtered.map(item => (
-                <tr key={item.id} className={cn(
-                  'border-b border-hairline-soft table-row-hover',
-                  isPending(item) && 'bg-amber-50/30 dark:bg-amber-950/10',
-                )}>
+                <tr key={item.id} className="border-b border-hairline-soft table-row-hover">
                   <td className="px-4 py-4">
                     <StageStatusSelect
                       item={item}
@@ -211,11 +205,6 @@ export function VideosLongosTab({ onNavigate }) {
                       >
                         {item.tema}
                       </button>
-                      {isPending(item) && (
-                        <span title="Aprovado sem link finalizado" className="pending-pulse">
-                          <AlertCircle size={14} className="text-warning" />
-                        </span>
-                      )}
                     </div>
                     {item.descricao && <p className="text-xs text-mute mt-0.5 truncate max-w-xs">{item.descricao}</p>}
                   </td>
@@ -328,20 +317,6 @@ function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
         <Field label="Descrição">
           <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value)} placeholder="Descrição breve..." />
         </Field>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Link Finalizado">
-            <div className="flex items-center gap-2">
-              <Input value={form.linkFinalizado} onChange={e => set('linkFinalizado', e.target.value)} placeholder="https://... ou Subir" />
-              <UploadButton onUploaded={url => set('linkFinalizado', url)} onError={() => toast('Falha no upload. Tente novamente.')} />
-            </div>
-          </Field>
-          <Field label="Thumbnail">
-            <div className="flex items-center gap-2">
-              <Input value={form.thumb} onChange={e => set('thumb', e.target.value)} placeholder="URL ou Subir" />
-              <UploadButton accept="image/*" onUploaded={url => set('thumb', url)} onError={() => toast('Falha no upload. Tente novamente.')} />
-            </div>
-          </Field>
-        </div>
         <div className="flex items-center gap-6 pt-2">
           {STAGES.map(s => (
             <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />
