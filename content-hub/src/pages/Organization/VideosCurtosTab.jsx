@@ -131,17 +131,17 @@ export function VideosCurtosTab({ onNavigate }) {
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar por título..." className="w-64" />
-        <Select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="w-40 !h-10">
+        <Select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="w-48 !h-10">
           <option value="">Todas categorias</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
         </Select>
-        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-44 !h-10">
+        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-48 !h-10">
           <option value="">Todos os status</option>
           {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </Select>
-        <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-48 !h-10" title="Ordenar por">
+        <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-64 !h-10" title="Ordenar por">
           {OPCOES_ORDEM.map(o => <option key={o.value} value={o.value}>Ordenar: {o.label}</option>)}
         </Select>
         <div className="flex-1" />
