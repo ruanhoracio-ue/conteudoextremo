@@ -22,7 +22,9 @@ const variants = {
   'shiny-brand': 'shiny-brand hover:-translate-y-0.5 transform-gpu',
   // verde chapado: o botão principal da referência, sem borda girando nem fundo preto
   primary: 'bg-emerald text-white shadow-sm hover:bg-emerald-deep hover:-translate-y-0.5 transform-gpu',
-  brand: 'shiny-brand hover:-translate-y-0.5 transform-gpu text-white',
+  // 'brand' nunca teve CSS (.shiny-brand não existe): ficava texto branco sem fundo,
+  // invisível em modal claro. Passa a ser o mesmo verde chapado do primary.
+  brand: 'bg-emerald text-white shadow-sm hover:bg-emerald-deep hover:-translate-y-0.5 transform-gpu',
   secondary:
     'ds-btn-secondary bg-surface text-ink border border-hairline hover:bg-elevated hover:-translate-y-0.5 transform-gpu shadow-xs',
   ghost: 'bg-transparent text-ink hover:bg-ink/10',
@@ -33,7 +35,7 @@ export const Button = forwardRef(function Button(
   { as: Tag = 'button', variant = 'primary', size = 'sm', className, children, icon, ...props },
   ref,
 ) {
-  const isShiny = variant === 'shiny' || variant === 'shiny-brand' || variant === 'brand'
+  const isShiny = variant === 'shiny' || variant === 'shiny-brand'
 
   const content = (
     <>
