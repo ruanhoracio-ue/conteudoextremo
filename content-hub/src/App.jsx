@@ -6,6 +6,7 @@ import SplashScreen from './components/SplashScreen'
 import { AppShell } from './components/layout/AppShell'
 import { VideosLongosTab } from './pages/Organization/VideosLongosTab'
 import { VideosCurtosTab } from './pages/Organization/VideosCurtosTab'
+import { VideosTiagoTab } from './pages/Organization/VideosTiagoTab'
 import { CortesTab } from './pages/Organization/CortesTab'
 import { FrasesTab } from './pages/Organization/FrasesTab'
 import { CalendarPage } from './pages/Calendar/CalendarPage'
@@ -27,6 +28,7 @@ import { FileSpreadsheet, Eye } from 'lucide-react'
 const orgTabs = [
   { key: 'videos-longos', label: 'Vídeos Longos' },
   { key: 'videos-curtos', label: 'Vídeos Curtos' },
+  { key: 'videos-tiago', label: 'Vídeos Tiago' },
   { key: 'cortes', label: 'Carrossel' },
   { key: 'frases', label: 'Frases' },
 ]
@@ -38,6 +40,7 @@ function OrganizationPage({ activeSubTab, onNavigate }) {
   const pageMap = {
     'videos-longos': <VideosLongosTab onNavigate={onNavigate} />,
     'videos-curtos': <VideosCurtosTab onNavigate={onNavigate} />,
+    'videos-tiago': <VideosTiagoTab onNavigate={onNavigate} />,
     'cortes': <CortesTab onNavigate={onNavigate} />,
     'frases': <FrasesTab />,
   }
@@ -72,6 +75,7 @@ function OrganizationPage({ activeSubTab, onNavigate }) {
 const pageTitles = {
   'videos-longos': 'Vídeos Longos',
   'videos-curtos': 'Vídeos Curtos',
+  'videos-tiago': 'Vídeos Tiago',
   'cortes': 'Carrossel',
   'frases': 'Frases',
 }
@@ -79,6 +83,7 @@ const pageTitles = {
 const pageDescriptions = {
   'videos-longos': 'Gerencie seus vídeos longos do YouTube',
   'videos-curtos': 'Acompanhe Reels, TikTok e Shorts',
+  'videos-tiago': 'Vídeos do Tiago para as redes',
   'cortes': 'Crie e gerencie carrosséis para o Instagram',
   'frases': 'Métricas de performance das suas frases',
 }

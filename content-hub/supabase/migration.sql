@@ -31,6 +31,21 @@ create table if not exists videos_curtos (
   link_finalizado text default ''
 );
 
+-- 2b. Vídeos Tiago (mesmo fluxo dos vídeos curtos, lista separada)
+create table if not exists videos_tiago (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  editado boolean default false,
+  em_aprovacao boolean default false,
+  alteracao boolean default false,
+  aprovado boolean default false,
+  publicado boolean default false,
+  categoria text default '',
+  titulo text default '',
+  link_finalizado text default ''
+);
+
 -- 3. Cortes
 create table if not exists cortes (
   id uuid default gen_random_uuid() primary key,
@@ -141,6 +156,7 @@ on conflict (email) do nothing;
 -- Enable Row Level Security (opcional — liberado para anon key por enquanto)
 alter table videos_longos enable row level security;
 alter table videos_curtos enable row level security;
+alter table videos_tiago enable row level security;
 alter table cortes enable row level security;
 alter table frases enable row level security;
 alter table equipe enable row level security;
@@ -153,6 +169,7 @@ alter table usuarios enable row level security;
 -- Em produção, troque por autenticação real
 drop policy if exists "Allow all for anon" on videos_longos;
 drop policy if exists "Allow all for anon" on videos_curtos;
+drop policy if exists "Allow all for anon" on videos_tiago;
 drop policy if exists "Allow all for anon" on cortes;
 drop policy if exists "Allow all for anon" on frases;
 drop policy if exists "Allow all for anon" on equipe;
@@ -163,6 +180,7 @@ drop policy if exists "Allow all for anon" on usuarios;
 
 create policy "Allow all for anon" on videos_longos for all using (true) with check (true);
 create policy "Allow all for anon" on videos_curtos for all using (true) with check (true);
+create policy "Allow all for anon" on videos_tiago for all using (true) with check (true);
 create policy "Allow all for anon" on cortes for all using (true) with check (true);
 create policy "Allow all for anon" on frases for all using (true) with check (true);
 create policy "Allow all for anon" on equipe for all using (true) with check (true);

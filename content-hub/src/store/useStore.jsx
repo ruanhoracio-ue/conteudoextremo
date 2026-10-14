@@ -6,6 +6,7 @@ const StoreContext = createContext(null)
 const TABLE_MAP = {
   videosLongos: 'videos_longos',
   videosCurtos: 'videos_curtos',
+  videosTiago: 'videos_tiago',
   cortes: 'cortes',
   frases: 'frases',
   equipe: 'equipe',
@@ -17,6 +18,7 @@ export function StoreProvider({ children }) {
   const [state, setState] = useState({
     videosLongos: [],
     videosCurtos: [],
+    videosTiago: [],
     cortes: [],
     frases: [],
     equipe: [],
@@ -167,6 +169,9 @@ export function useApprovedItems() {
   })
   ;(state.videosCurtos || []).forEach(item => {
     if (item.aprovado) approved.push({ type: 'Vídeo Curto', title: item.titulo, id: item.id })
+  })
+  ;(state.videosTiago || []).forEach(item => {
+    if (item.aprovado) approved.push({ type: 'Vídeo Tiago', title: item.titulo, id: item.id })
   })
   ;(state.cortes || []).forEach(item => {
     if (item.aprovado) approved.push({ type: 'Corte', title: item.titulo, id: item.id })

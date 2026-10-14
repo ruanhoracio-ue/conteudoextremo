@@ -5,7 +5,7 @@ import { useAuth } from '../../store/AuthContext'
 import {
   LayoutGrid, Calendar, Video, Film, MessageSquareQuote,
   BarChart3, ChevronRight, Settings, TrendingUp, Bot, PenBox, Pickaxe, FileVideo,
-  ShieldCheck, LogOut, Eye, KeyRound
+  ShieldCheck, LogOut, Eye, KeyRound, Clapperboard
 } from 'lucide-react'
 
 export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse }) {
@@ -34,6 +34,7 @@ export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse })
       items: [
         { key: 'videos-longos', label: 'Vídeos Longos', icon: Video },
         { key: 'videos-curtos', label: 'Vídeos Curtos (Reels)', icon: Film },
+        { key: 'videos-tiago', label: 'Vídeos Tiago', icon: Clapperboard },
         { key: 'cortes', label: 'Carrossel', icon: LayoutGrid },
         { key: 'frases', label: 'Frases', icon: MessageSquareQuote },
       ],

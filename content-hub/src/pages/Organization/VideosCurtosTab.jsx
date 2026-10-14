@@ -33,15 +33,27 @@ const emptyItem = {
   categoria: '', titulo: '', linkFinalizado: '',
 }
 
-export function VideosCurtosTab({ onNavigate }) {
-  const { items, addItem, updateItem, deleteItem } = useCollection('videosCurtos')
+// A aba é reaproveitada por outras listas com o mesmo fluxo (ex.: Vídeos Tiago):
+// basta passar um config com a coleção e os rótulos.
+export const CONFIG_VIDEOS_CURTOS = {
+  collection: 'videosCurtos',      // chave no store / TABLES
+  scope: 'videos-curtos',          // preferências salvas por aba (coluna Link, ordenação)
+  tipo: 'Vídeo Curto',             // rótulo singular (modais, Claude/IA, calendário)
+  novo: 'Novo Vídeo Curto',        // botão de criar
+  csv: 'videos-curtos',            // nome do arquivo exportado
+  attachmentsType: 'videosCurtos', // pasta dos anexos no R2
+}
+
+export function VideosCurtosTab({ onNavigate, config }) {
+  const cfg = { ...CONFIG_VIDEOS_CURTOS, ...(config || {}) }
+  const { items, addItem, updateItem, deleteItem } = useCollection(cfg.collection)
   const { addItem: addCalendarItem } = useCollection('calendario')
 
   const [search, setSearch] = useState('')
-  const { showLink, toggleLink } = useLinkColumn('videos-curtos')
+  const { showLink, toggleLink } = useLinkColumn(cfg.scope)
   const [filterCat, setFilterCat] = useState('')
   const [filterStage, setFilterStage] = useState('')
-  const [ordem, setOrdem] = useOrdenacao('videos-curtos')
+  const [ordem, setOrdem] = useOrdenacao(cfg.scope)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -72,7 +84,7 @@ export function VideosCurtosTab({ onNavigate }) {
       setScheduleTarget({
         id: item.id,
         title: item.titulo,
-        type: 'Vídeo Curto',
+        type: cfg.tipo,
         defaultFormat: 'Reels',
       })
     }
@@ -95,7 +107,7 @@ export function VideosCurtosTab({ onNavigate }) {
       setScheduleTarget({
         id: savedId || 'new',
         title: data.titulo,
-        type: 'Vídeo Curto',
+        type: cfg.tipo,
         defaultFormat: 'Reels',
       })
     }
@@ -154,11 +166,11 @@ export function VideosCurtosTab({ onNavigate }) {
         >
           {showLink ? 'Ocultar Link' : 'Mostrar Link'}
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => exportToCSV(items, 'videos-curtos')} icon={<Download size={14} />}>
+        <Button variant="ghost" size="sm" onClick={() => exportToCSV(items, cfg.csv)} icon={<Download size={14} />}>
           CSV
         </Button>
         <Button variant="primary" size="sm" onClick={openAdd} icon={<Plus size={16} />}>
-          Novo Vídeo Curto
+          {cfg.novo}
         </Button>
       </div>
 
@@ -229,8 +241,8 @@ export function VideosCurtosTab({ onNavigate }) {
                   )}
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-end gap-1">
-                      <ClaudeButton context={item} title="Claude — Vídeo Curto" />
-                      <AiButton context={item} title="IA — Vídeo Curto" />
+                      <ClaudeButton context={item} title={`Claude — ${cfg.tipo}`} />
+                      <AiButton context={item} title={`IA — ${cfg.tipo}`} />
                       <button onClick={() => openEdit(item)} className="p-1.5 rounded-md text-mute hover:text-ink hover:bg-ink/5 transition-colors">
                         <Pencil size={14} />
                       </button>
@@ -246,8 +258,9 @@ export function VideosCurtosTab({ onNavigate }) {
         </div>
       )}
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar Vídeo Curto' : 'Novo Vídeo Curto'}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? `Editar ${cfg.tipo}` : cfg.novo}>
         <VideosCurtosForm
+          attachmentsType={cfg.attachmentsType}
           initialData={editing}
           onSave={handleSave}
           onClose={() => setModalOpen(false)}
@@ -272,7 +285,7 @@ export function VideosCurtosTab({ onNavigate }) {
   )
 }
 
-function VideosCurtosForm({ initialData, onSave, onClose }) {
+function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType }) {
   const [form, setForm] = useState(initialData || emptyItem)
   // id gerado já na criação, para permitir anexos antes de salvar
   const [draftId] = useState(() => crypto.randomUUID())
@@ -303,7 +316,7 @@ function VideosCurtosForm({ initialData, onSave, onClose }) {
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
       <div className="pt-4 border-t border-hairline">
-        <AttachmentsPanel itemType="videosCurtos" itemId={initialData?.id || draftId} />
+        <AttachmentsPanel itemType={attachmentsType} itemId={initialData?.id || draftId} />
       </div>
       <div className="flex justify-end gap-3 pt-4 border-t border-hairline">
         <Button variant="ghost" size="sm" type="button" onClick={onClose}>Cancelar</Button>

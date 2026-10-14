@@ -16,6 +16,7 @@ export const supabase = isSupabaseConfigured
 const TABLES = {
   videosLongos: 'videos_longos',
   videosCurtos: 'videos_curtos',
+  videosTiago: 'videos_tiago',
   cortes: 'cortes',
   frases: 'frases',
   equipe: 'equipe',

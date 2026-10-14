@@ -29,6 +29,7 @@ function pastStr(days) {
 export const seedData = {
   videosLongos: [],
   videosCurtos: [],
+  videosTiago: [],
   cortes: [],
   frases: [],
   equipe: [
