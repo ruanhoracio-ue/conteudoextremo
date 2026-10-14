@@ -9,6 +9,8 @@ const CONFIG_VIDEOS_TIAGO = {
   novo: 'Novo Vídeo',
   csv: 'videos-tiago',
   attachmentsType: 'videosTiago',
+  vazioTitulo: 'Nenhum vídeo encontrado',
+  vazioDescricao: 'Adicione um novo vídeo ou ajuste os filtros.',
 }
 
 export function VideosTiagoTab(props) {

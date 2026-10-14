@@ -42,6 +42,8 @@ export const CONFIG_VIDEOS_CURTOS = {
   novo: 'Novo Vídeo Curto',        // botão de criar
   csv: 'videos-curtos',            // nome do arquivo exportado
   attachmentsType: 'videosCurtos', // pasta dos anexos no R2
+  vazioTitulo: 'Nenhum vídeo curto encontrado',
+  vazioDescricao: 'Adicione um novo vídeo curto ou ajuste os filtros.',
 }
 
 export function VideosCurtosTab({ onNavigate, config }) {
@@ -175,7 +177,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Film} title="Nenhum vídeo curto encontrado" description="Adicione um novo vídeo curto ou ajuste os filtros." />
+        <EmptyState icon={Film} title={cfg.vazioTitulo} description={cfg.vazioDescricao} />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-hairline">
           <table className="w-full text-sm">
