@@ -24,16 +24,16 @@
     --sel-bg: #d1fae5;
     --sel-fg: #059669;
 
-    --c-canvas: 250 250 250;
+    --c-canvas: 247 248 250;
     --c-surface: 255 255 255;
-    --c-elevated: 245 245 245;
+    --c-elevated: 243 244 246;
     --c-ink: 23 23 23;
     --c-body: 38 38 38;
     --c-mute: 82 82 82;
     --c-faint: 161 161 161;
-    --c-hairline: 236 236 236;
-    --c-hairline-soft: 244 244 244;
-    --c-hairline-strong: 212 212 212;
+    --c-hairline: 231 234 237;
+    --c-hairline-soft: 241 243 245;
+    --c-hairline-strong: 206 212 218;
     --c-inverse: 23 23 23;
     --c-on-inverse: 255 255 255;
 
@@ -114,7 +114,7 @@
 @layer components {
   /* Premium Card with 1px Hairline and Hover Glow */
   .premium-card {
-    @apply relative overflow-hidden rounded-xl border border-hairline transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl border border-hairline transition-all duration-300;
     background-color: rgb(var(--c-surface));
     box-shadow: none;
   }

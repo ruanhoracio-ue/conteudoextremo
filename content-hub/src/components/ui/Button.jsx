@@ -20,7 +20,8 @@ const sizes = {
 const variants = {
   shiny: 'shiny-cta hover:-translate-y-0.5 transform-gpu',
   'shiny-brand': 'shiny-brand hover:-translate-y-0.5 transform-gpu',
-  primary: 'shiny-cta hover:-translate-y-0.5 transform-gpu text-white',
+  // verde chapado: o botão principal da referência, sem borda girando nem fundo preto
+  primary: 'bg-emerald text-white shadow-sm hover:bg-emerald-deep hover:-translate-y-0.5 transform-gpu',
   brand: 'shiny-brand hover:-translate-y-0.5 transform-gpu text-white',
   secondary:
     'ds-btn-secondary bg-surface text-ink border border-hairline hover:bg-elevated hover:-translate-y-0.5 transform-gpu shadow-xs',
@@ -32,7 +33,7 @@ export const Button = forwardRef(function Button(
   { as: Tag = 'button', variant = 'primary', size = 'sm', className, children, icon, ...props },
   ref,
 ) {
-  const isShiny = variant === 'shiny' || variant === 'shiny-brand' || variant === 'primary' || variant === 'brand'
+  const isShiny = variant === 'shiny' || variant === 'shiny-brand' || variant === 'brand'
 
   const content = (
     <>

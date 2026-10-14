@@ -10,7 +10,8 @@
     <script>
       try {
         const t = localStorage.getItem('theme')
-        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // Claro por padrão; o escuro só quando a pessoa escolheu no botão de tema.
+        if (t === 'dark') {
           document.documentElement.classList.add('dark')
         }
       } catch (e) {}

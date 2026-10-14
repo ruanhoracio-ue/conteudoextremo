@@ -21,7 +21,7 @@ export function AppShell({ activePage, onNavigate, children }) {
           width={20}
           height={20}
           cr={1.2}
-          fill="fill-ink/[0.08]"
+          fill="fill-ink/[0.06]"
           className="[mask-image:linear-gradient(to_bottom,white_0%,white_40%,transparent_100%)]"
         />
         <div className="relative z-10 h-full overflow-y-auto custom-scrollbar">

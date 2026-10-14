@@ -109,9 +109,9 @@ export function Sidebar({ activePage, onNavigate, collapsed, onToggleCollapse })
                   key={item.key}
                   onClick={() => onNavigate(item.key)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200',
+                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-emerald/10 text-emerald-deep dark:text-emerald-400 font-bold border border-emerald/20 shadow-xs'
+                      ? 'bg-emerald/10 text-emerald-deep dark:text-emerald-400 font-semibold'
                       : 'text-mute hover:bg-ink/5 hover:text-ink',
                     collapsed && 'justify-center px-0'
                   )}
