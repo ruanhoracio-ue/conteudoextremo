@@ -9,7 +9,8 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
-import { Field, Input, Select } from '../../components/ui/Input'
+import { Field, Input, Select, Textarea } from '../../components/ui/Input'
+import { AlteracaoNotaModal } from '../../components/AlteracaoNotaModal'
 import { toast } from '../../components/ui/Toast'
 import { exportToCSV } from '../../store/storage'
 import { AiButton } from '../../components/ai/AiPanel'
@@ -24,7 +25,7 @@ const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
 
 const emptyItem = {
-  titulo: '', editado: false, aprovado: false, publicado: false,
+  titulo: '', editado: false, aprovado: false, publicado: false, alteracaoNota: '',
 }
 
 export function CortesTab({ onNavigate }) {
@@ -34,6 +35,7 @@ export function CortesTab({ onNavigate }) {
   const [search, setSearch] = useState('')
   const [filterStage, setFilterStage] = useState('')
   const [ordem, setOrdem] = useOrdenacao('cortes')
+  const [notaTarget, setNotaTarget] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -54,6 +56,8 @@ export function CortesTab({ onNavigate }) {
   function openEdit(item) { setEditing(item); setModalOpen(true) }
 
   function handleStatusChange(item, status) {
+    // Alteração pede o que mudar antes de aplicar; o modal confirma status + nota juntos.
+    if (status === 'alteracao') { setNotaTarget(item); return }
     const updates = updatesForStatus(STAGES, status)
     const virouAprovado = updates.aprovado && !item.aprovado
     updateItem(item.id, updates)
@@ -66,6 +70,12 @@ export function CortesTab({ onNavigate }) {
         defaultFormat: 'Carrossel',
       })
     }
+  }
+
+  function handleConfirmarAlteracao(nota) {
+    if (!notaTarget) return
+    updateItem(notaTarget.id, { ...updatesForStatus(STAGES, 'alteracao'), alteracaoNota: nota })
+    setNotaTarget(null)
   }
 
   function handleSave(data) {
@@ -171,6 +181,11 @@ export function CortesTab({ onNavigate }) {
                         {item.titulo}
                       </button>
                     </div>
+                    {item.alteracao && item.alteracaoNota && (
+                      <p className="mt-0.5 max-w-xs truncate text-[11px] text-rose-600 dark:text-rose-400" title={item.alteracaoNota}>
+                        ⚠ {item.alteracaoNota}
+                      </p>
+                    )}
                     {item.observacao && <p className="text-xs text-mute mt-0.5">{item.observacao}</p>}
                   </td>
                   <td className="px-4 py-4">
@@ -203,6 +218,14 @@ export function CortesTab({ onNavigate }) {
         onConfirm={handleConfirmSchedule}
       />
 
+      <AlteracaoNotaModal
+        item={notaTarget}
+        isOpen={!!notaTarget}
+        onClose={() => setNotaTarget(null)}
+        onConfirm={handleConfirmarAlteracao}
+        titulo={notaTarget?.titulo}
+      />
+
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -230,6 +253,11 @@ function CortesForm({ initialData, onSave, onClose }) {
       <div className="flex items-center gap-6 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
+      {form.alteracao && (
+        <Field label="O que precisa mudar">
+          <Textarea rows={3} value={form.alteracaoNota || ''} onChange={e => set('alteracaoNota', e.target.value)} placeholder="Anotações para quem vai editar..." />
+        </Field>
+      )}
       <div className="pt-4 border-t border-hairline">
         <AttachmentsPanel itemType="cortes" itemId={initialData?.id || draftId} zipName={form.titulo} />
       </div>

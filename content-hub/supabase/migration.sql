@@ -74,6 +74,12 @@ alter table videos_curtos add column if not exists alteracao boolean default fal
 alter table cortes add column if not exists em_aprovacao boolean default false;
 alter table cortes add column if not exists alteracao boolean default false;
 
+-- Texto do que precisa mudar quando o item está em "Alteração".
+alter table videos_longos add column if not exists alteracao_nota text default '';
+alter table videos_curtos add column if not exists alteracao_nota text default '';
+alter table videos_tiago add column if not exists alteracao_nota text default '';
+alter table cortes add column if not exists alteracao_nota text default '';
+
 -- 4. Frases
 create table if not exists frases (
   id uuid default gen_random_uuid() primary key,

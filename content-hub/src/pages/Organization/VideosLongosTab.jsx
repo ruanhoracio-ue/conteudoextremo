@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
 import { Field, Input, Select, Textarea } from '../../components/ui/Input'
+import { AlteracaoNotaModal } from '../../components/AlteracaoNotaModal'
 import { toast } from '../../components/ui/Toast'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
 import { exportToCSV } from '../../store/storage'
@@ -28,7 +29,7 @@ const CATEGORIAS = ['Aula', 'Vlog', 'React', 'Collab', 'Entrevista', 'Review']
 
 const emptyItem = {
   gravado: false, editado: false, aprovado: false, publicado: false,
-  categoria: '', ondeQuem: '', tema: '', descricao: '',
+  categoria: '', ondeQuem: '', tema: '', descricao: '', alteracaoNota: '',
 }
 
 export function VideosLongosTab({ onNavigate }) {
@@ -41,6 +42,7 @@ export function VideosLongosTab({ onNavigate }) {
   const [filterQuem, setFilterQuem] = useState('')
   const [filterStage, setFilterStage] = useState('')
   const [ordem, setOrdem] = useOrdenacao('videos-longos')
+  const [notaTarget, setNotaTarget] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -68,6 +70,8 @@ export function VideosLongosTab({ onNavigate }) {
   function openEdit(item) { setEditing(item); setModalOpen(true) }
 
   function handleStatusChange(item, status) {
+    // Alteração pede o que mudar antes de aplicar; o modal confirma status + nota juntos.
+    if (status === 'alteracao') { setNotaTarget(item); return }
     const updates = updatesForStatus(STAGES, status)
     const virouAprovado = updates.aprovado && !item.aprovado
     updateItem(item.id, updates)
@@ -80,6 +84,12 @@ export function VideosLongosTab({ onNavigate }) {
         defaultFormat: 'YouTube',
       })
     }
+  }
+
+  function handleConfirmarAlteracao(nota) {
+    if (!notaTarget) return
+    updateItem(notaTarget.id, { ...updatesForStatus(STAGES, 'alteracao'), alteracaoNota: nota })
+    setNotaTarget(null)
   }
 
   function handleSave(data) {
@@ -214,6 +224,11 @@ export function VideosLongosTab({ onNavigate }) {
                         {item.tema}
                       </button>
                     </div>
+                    {item.alteracao && item.alteracaoNota && (
+                      <p className="mt-0.5 max-w-xs truncate text-[11px] text-rose-600 dark:text-rose-400" title={item.alteracaoNota}>
+                        ⚠ {item.alteracaoNota}
+                      </p>
+                    )}
                     {item.descricao && <p className="text-xs text-mute mt-0.5 truncate max-w-xs">{item.descricao}</p>}
                   </td>
                   {showLink && (
@@ -269,6 +284,14 @@ export function VideosLongosTab({ onNavigate }) {
       />
 
       {/* Delete Confirm */}
+      <AlteracaoNotaModal
+        item={notaTarget}
+        isOpen={!!notaTarget}
+        onClose={() => setNotaTarget(null)}
+        onConfirm={handleConfirmarAlteracao}
+        titulo={notaTarget?.tema}
+      />
+
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -330,6 +353,11 @@ function VideoLongoForm({ isOpen, onClose, onSave, initialData }) {
             <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />
           ))}
         </div>
+        {form.alteracao && (
+          <Field label="O que precisa mudar">
+            <Textarea rows={3} value={form.alteracaoNota || ''} onChange={e => set('alteracaoNota', e.target.value)} placeholder="Anotações para quem vai editar..." />
+          </Field>
+        )}
         <div className="pt-4 border-t border-hairline">
           <AttachmentsPanel itemType="videosLongos" itemId={initialData?.id || draftId} />
         </div>

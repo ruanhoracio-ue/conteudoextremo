@@ -9,7 +9,8 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { Modal } from '../../components/ui/Modal'
-import { Field, Input, Select } from '../../components/ui/Input'
+import { Field, Input, Select, Textarea } from '../../components/ui/Input'
+import { AlteracaoNotaModal } from '../../components/AlteracaoNotaModal'
 import { toast } from '../../components/ui/Toast'
 import { UploadButton } from '../../components/ui/UploadButton'
 import { AttachmentsPanel } from '../../components/AttachmentsPanel'
@@ -30,7 +31,7 @@ const CATEGORIAS = ['Lo-fi', 'Corte', 'Claude', 'Tiago', 'Tutorial', 'Dica']
 
 const emptyItem = {
   editado: false, aprovado: false, publicado: false,
-  categoria: '', titulo: '', linkFinalizado: '',
+  categoria: '', titulo: '', linkFinalizado: '', alteracaoNota: '',
 }
 
 // A aba é reaproveitada por outras listas com o mesmo fluxo (ex.: Vídeos Tiago):
@@ -56,6 +57,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
   const [filterCat, setFilterCat] = useState('')
   const [filterStage, setFilterStage] = useState('')
   const [ordem, setOrdem] = useOrdenacao(cfg.scope)
+  const [notaTarget, setNotaTarget] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -78,6 +80,8 @@ export function VideosCurtosTab({ onNavigate, config }) {
   function openEdit(item) { setEditing(item); setModalOpen(true) }
 
   function handleStatusChange(item, status) {
+    // Alteração pede o que mudar antes de aplicar; o modal confirma status + nota juntos.
+    if (status === 'alteracao') { setNotaTarget(item); return }
     const updates = updatesForStatus(STAGES, status)
     const virouAprovado = updates.aprovado && !item.aprovado
     updateItem(item.id, updates)
@@ -90,6 +94,12 @@ export function VideosCurtosTab({ onNavigate, config }) {
         defaultFormat: 'Reels',
       })
     }
+  }
+
+  function handleConfirmarAlteracao(nota) {
+    if (!notaTarget) return
+    updateItem(notaTarget.id, { ...updatesForStatus(STAGES, 'alteracao'), alteracaoNota: nota })
+    setNotaTarget(null)
   }
 
   function handleSave(data) {
@@ -225,6 +235,11 @@ export function VideosCurtosTab({ onNavigate, config }) {
                         </span>
                       )}
                     </div>
+                    {item.alteracao && item.alteracaoNota && (
+                      <p className="mt-0.5 max-w-xs truncate text-[11px] text-rose-600 dark:text-rose-400" title={item.alteracaoNota}>
+                        ⚠ {item.alteracaoNota}
+                      </p>
+                    )}
                   </td>
                   {showLink && (
                     <td className="px-4 py-4">
@@ -276,6 +291,14 @@ export function VideosCurtosTab({ onNavigate, config }) {
         onConfirm={handleConfirmSchedule}
       />
 
+      <AlteracaoNotaModal
+        item={notaTarget}
+        isOpen={!!notaTarget}
+        onClose={() => setNotaTarget(null)}
+        onConfirm={handleConfirmarAlteracao}
+        titulo={notaTarget?.titulo}
+      />
+
       <ConfirmDialog
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -317,6 +340,11 @@ function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType }) {
       <div className="flex items-center gap-6 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
+      {form.alteracao && (
+        <Field label="O que precisa mudar">
+          <Textarea rows={3} value={form.alteracaoNota || ''} onChange={e => set('alteracaoNota', e.target.value)} placeholder="Anotações para quem vai editar..." />
+        </Field>
+      )}
       <div className="pt-4 border-t border-hairline">
         <AttachmentsPanel itemType={attachmentsType} itemId={initialData?.id || draftId} />
       </div>
