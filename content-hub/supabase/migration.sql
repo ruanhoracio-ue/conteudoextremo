@@ -201,3 +201,8 @@ alter table criativos add column if not exists alteracao text default '';
 -- Sub-abas TikTok e Shorts dos Vídeos Curtos: controle de "postado" por rede
 alter table videos_curtos add column if not exists postado_tiktok boolean default false;
 alter table videos_curtos add column if not exists postado_shorts boolean default false;
+
+-- Status "Agendado" dos Vídeos Curtos: data agendada e link do post
+alter table videos_curtos add column if not exists agendado boolean default false;
+alter table videos_curtos add column if not exists data_agendada timestamptz;
+alter table videos_curtos add column if not exists link_post text default '';

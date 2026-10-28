@@ -19,21 +19,35 @@ import { cn } from '../../lib/cn'
 import { AiButton } from '../../components/ai/AiPanel'
 import { ClaudeButton } from '../../components/claude/ClaudePanel'
 import { ScheduleModal } from '../../components/calendar/ScheduleModal'
-import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Film, Download, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, ExternalLink, AlertCircle, Film, Download, Eye, EyeOff, CalendarClock, Copy } from 'lucide-react'
 import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 import { ordenar, OPCOES_ORDEM } from '../../lib/ordenacao'
 import { useOrdenacao } from '../../lib/useOrdenacao'
 import { PostadoToggle } from '../../components/ui/PostadoToggle'
 import { REDES_VIDEOS_CURTOS, elegivelParaRedes, OPCOES_FILTRO_POSTADO, matchesPostadoFilter, contarRede } from '../../lib/redes'
+import { AgendamentoModal } from '../../components/AgendamentoModal'
+import { STAGES_VIDEOS_CURTOS, formatarDataAgendada, paraInputLocal, deInputLocal } from '../../lib/agendamento'
 
-const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
-const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
+// Fluxo sem o "Agendado" (Vídeos Tiago): a tabela videos_tiago não tem as colunas do agendamento.
+const STAGES_BASE = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
+const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', agendado: 'Agendado', publicado: 'Publicado' }
 const CATEGORIAS = ['Lo-fi', 'Corte', 'Claude', 'Tiago', 'Tutorial', 'Dica']
 
-const emptyItem = {
-  editado: false, aprovado: false, publicado: false,
-  categoria: '', titulo: '', linkFinalizado: '', alteracaoNota: '',
+function itemVazio(stages) {
+  const base = { categoria: '', titulo: '', linkFinalizado: '', alteracaoNota: '' }
+  stages.forEach(s => { base[s] = false })
+  if (stages.includes('agendado')) Object.assign(base, { dataAgendada: '', linkPost: '' })
+  return base
+}
+
+async function copiarId(id) {
+  try {
+    await navigator.clipboard.writeText(id)
+    toast('ID copiado')
+  } catch {
+    window.prompt('Copie o ID:', id)
+  }
 }
 
 // A aba é reaproveitada por outras listas com o mesmo fluxo (ex.: Vídeos Tiago):
@@ -49,10 +63,14 @@ export const CONFIG_VIDEOS_CURTOS = {
   vazioDescricao: 'Adicione um novo vídeo curto ou ajuste os filtros.',
   // sub-abas de rede social (TikTok / Shorts); [] desliga. Ver lib/redes.js
   redes: REDES_VIDEOS_CURTOS,
+  // etapas do fluxo, na ordem; com 'agendado' a aba ganha data agendada + link do post
+  stages: STAGES_VIDEOS_CURTOS,
 }
 
 export function VideosCurtosTab({ onNavigate, config }) {
   const cfg = { ...CONFIG_VIDEOS_CURTOS, ...(config || {}) }
+  const STAGES = cfg.stages || STAGES_BASE
+  const temAgendamento = STAGES.includes('agendado')
   const { items, addItem, updateItem, deleteItem } = useCollection(cfg.collection)
   const { addItem: addCalendarItem } = useCollection('calendario')
 
@@ -66,6 +84,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
   const redeAtual = cfg.redes.find(r => r.key === rede) || null
   const [ordem, setOrdem] = useOrdenacao(cfg.scope)
   const [notaTarget, setNotaTarget] = useState(null)
+  const [agendarTarget, setAgendarTarget] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -83,7 +102,12 @@ export function VideosCurtosTab({ onNavigate, config }) {
       } else if (!matchesStageFilter(item, filterStage)) {
         return false
       }
-      if (search && !item.titulo?.toLowerCase().includes(search.toLowerCase())) return false
+      if (search) {
+        const q = search.trim().toLowerCase()
+        const bateTitulo = item.titulo?.toLowerCase().includes(q)
+        const bateId = q.length >= 4 && String(item.id || '').toLowerCase().startsWith(q)
+        if (!bateTitulo && !bateId) return false
+      }
       return true
     })
   }, [items, search, filterCat, filterStage, redeAtual, filterPostado])
@@ -91,7 +115,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
   // na sub-aba, "ordenar por status" = não postados primeiro
   const ordenados = useMemo(
     () => ordenar(filtered, ordem, { stages: redeAtual ? [redeAtual.campo] : STAGES, titulo: 'titulo' }),
-    [filtered, ordem, redeAtual],
+    [filtered, ordem, redeAtual, STAGES],
   )
 
   function openAdd() { setEditing(null); setModalOpen(true) }
@@ -100,6 +124,8 @@ export function VideosCurtosTab({ onNavigate, config }) {
   function handleStatusChange(item, status) {
     // Alteração pede o que mudar antes de aplicar; o modal confirma status + nota juntos.
     if (status === 'alteracao') { setNotaTarget(item); return }
+    // Agendado pede a data (e o link do post, se já tiver) antes de aplicar.
+    if (status === 'agendado') { setAgendarTarget(item); return }
     const updates = updatesForStatus(STAGES, status)
     const virouAprovado = updates.aprovado && !item.aprovado
     updateItem(item.id, updates)
@@ -112,6 +138,12 @@ export function VideosCurtosTab({ onNavigate, config }) {
         defaultFormat: 'Reels',
       })
     }
+  }
+
+  function handleConfirmarAgendamento({ dataAgendada, linkPost }) {
+    if (!agendarTarget) return
+    updateItem(agendarTarget.id, { ...updatesForStatus(STAGES, 'agendado'), dataAgendada: dataAgendada || null, linkPost })
+    setAgendarTarget(null)
   }
 
   function handleConfirmarAlteracao(nota) {
@@ -321,6 +353,26 @@ export function VideosCurtosTab({ onNavigate, config }) {
                         ⚠ {item.alteracaoNota}
                       </p>
                     )}
+                    {temAgendamento && item.agendado && (item.dataAgendada || item.linkPost) && (
+                      <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-indigo-600 dark:text-indigo-400">
+                        <CalendarClock size={12} className="shrink-0" />
+                        {item.dataAgendada && <span>{formatarDataAgendada(item.dataAgendada)}</span>}
+                        {item.linkPost && (
+                          <a href={item.linkPost} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-indigo-800 dark:hover:text-indigo-300">
+                            ver post
+                          </a>
+                        )}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => copiarId(item.id)}
+                      className="mt-0.5 inline-flex items-center gap-1 font-mono text-[10px] text-faint hover:text-ink transition-colors"
+                      title={`ID completo: ${item.id} (clique para copiar)`}
+                    >
+                      <Copy size={9} className="shrink-0" />
+                      {String(item.id).slice(0, 8)}
+                    </button>
                   </td>
                   {showLink && (
                     <td className="px-4 py-4">
@@ -360,6 +412,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
         <VideosCurtosForm
           attachmentsType={cfg.attachmentsType}
           redes={cfg.redes}
+          stages={STAGES}
           initialData={editing}
           onSave={handleSave}
           onClose={() => setModalOpen(false)}
@@ -371,6 +424,14 @@ export function VideosCurtosTab({ onNavigate, config }) {
         onClose={() => setScheduleTarget(null)}
         item={scheduleTarget}
         onConfirm={handleConfirmSchedule}
+      />
+
+      <AgendamentoModal
+        item={agendarTarget}
+        isOpen={!!agendarTarget}
+        onClose={() => setAgendarTarget(null)}
+        onConfirm={handleConfirmarAgendamento}
+        titulo={agendarTarget?.titulo}
       />
 
       <AlteracaoNotaModal
@@ -392,9 +453,11 @@ export function VideosCurtosTab({ onNavigate, config }) {
   )
 }
 
-function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType, redes = [] }) {
+function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType, redes = [], stages = STAGES_BASE }) {
+  const STAGES = stages
+  const temAgendamento = STAGES.includes('agendado')
   // os campos "postado" só existem nas listas com sub-abas de rede (não em Vídeos Tiago)
-  const [form, setForm] = useState(initialData || { ...emptyItem, ...Object.fromEntries(redes.map(r => [r.campo, false])) })
+  const [form, setForm] = useState(initialData || { ...itemVazio(STAGES), ...Object.fromEntries(redes.map(r => [r.campo, false])) })
   // id gerado já na criação, para permitir anexos antes de salvar
   const [draftId] = useState(() => crypto.randomUUID())
   const set = (f, v) => setForm(prev => ({ ...prev, [f]: v }))
@@ -423,6 +486,16 @@ function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType, redes
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
+      {temAgendamento && (form.agendado || form.publicado) && (
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Data agendada">
+            <Input type="datetime-local" value={paraInputLocal(form.dataAgendada)} onChange={e => set('dataAgendada', deInputLocal(e.target.value) || null)} />
+          </Field>
+          <Field label="Link do post">
+            <Input type="url" value={form.linkPost || ''} onChange={e => set('linkPost', e.target.value)} placeholder="https://..." />
+          </Field>
+        </div>
+      )}
       {redes.length > 0 && (form.aprovado || form.publicado) && (
         <div className="flex items-center gap-6">
           {redes.map(r => (

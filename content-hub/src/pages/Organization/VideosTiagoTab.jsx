@@ -12,6 +12,7 @@ const CONFIG_VIDEOS_TIAGO = {
   vazioTitulo: 'Nenhum vídeo encontrado',
   vazioDescricao: 'Adicione um novo vídeo ou ajuste os filtros.',
   redes: [], // sem sub-abas TikTok/Shorts (a tabela videos_tiago não tem as colunas postado_*)
+  stages: ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado'], // sem "Agendado" (sem colunas agendado/data_agendada/link_post)
 }
 
 export function VideosTiagoTab(props) {

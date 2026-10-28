@@ -5,6 +5,7 @@ import { statusOf } from '../../lib/stageStatus'
 // azul e âmbar para o meio, neutro para quem ainda não começou.
 const TONES = {
   publicado: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+  agendado: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
   aprovado: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
   alteracao: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
   emAprovacao: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',

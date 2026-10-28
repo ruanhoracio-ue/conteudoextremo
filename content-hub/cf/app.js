@@ -17,6 +17,7 @@ import { youtubeRouter } from './routes/youtube.js'
 import { mineracaoRouter } from './routes/mineracao.js'
 import { mediaRouter } from './routes/media.js'
 import { cofreRouter } from './routes/cofre.js'
+import { integracaoRouter } from './routes/integracao.js'
 
 const app = new Hono().basePath('/api')
 
@@ -25,7 +26,7 @@ const app = new Hono().basePath('/api')
 // aberta no navegador de alguém da equipe não consegue nem tentar chamá-la.
 app.use('*', cors({
   origin: (origin, c) => {
-    if (!c.req.path.startsWith('/api/cofre')) return '*'
+    if (!c.req.path.startsWith('/api/cofre') && !c.req.path.startsWith('/api/integracao')) return '*'
     return origin && origin === new URL(c.req.url).origin ? origin : null
   },
 }))
@@ -39,6 +40,7 @@ app.route('/youtube', youtubeRouter)
 app.route('/mineracao', mineracaoRouter)
 app.route('/media', mediaRouter)
 app.route('/cofre', cofreRouter)
+app.route('/integracao', integracaoRouter)
 
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
