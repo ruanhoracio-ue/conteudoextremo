@@ -197,3 +197,7 @@ create policy "Allow all for anon" on usuarios for all using (true) with check (
 
 -- Status "Alteração": campo para anotar o que precisa ser alterado no criativo
 alter table criativos add column if not exists alteracao text default '';
+
+-- Sub-abas TikTok e Shorts dos Vídeos Curtos: controle de "postado" por rede
+alter table videos_curtos add column if not exists postado_tiktok boolean default false;
+alter table videos_curtos add column if not exists postado_shorts boolean default false;

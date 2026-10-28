@@ -11,6 +11,7 @@ const CONFIG_VIDEOS_TIAGO = {
   attachmentsType: 'videosTiago',
   vazioTitulo: 'Nenhum vídeo encontrado',
   vazioDescricao: 'Adicione um novo vídeo ou ajuste os filtros.',
+  redes: [], // sem sub-abas TikTok/Shorts (a tabela videos_tiago não tem as colunas postado_*)
 }
 
 export function VideosTiagoTab(props) {

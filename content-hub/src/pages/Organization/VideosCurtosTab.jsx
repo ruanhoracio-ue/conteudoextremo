@@ -24,6 +24,8 @@ import { useLinkColumn } from '../../lib/useLinkColumn'
 import { stageFilterOptions, matchesStageFilter } from '../../lib/stageFilter'
 import { ordenar, OPCOES_ORDEM } from '../../lib/ordenacao'
 import { useOrdenacao } from '../../lib/useOrdenacao'
+import { PostadoToggle } from '../../components/ui/PostadoToggle'
+import { REDES_VIDEOS_CURTOS, elegivelParaRedes, OPCOES_FILTRO_POSTADO, matchesPostadoFilter, contarRede } from '../../lib/redes'
 
 const STAGES = ['editado', 'emAprovacao', 'alteracao', 'aprovado', 'publicado']
 const STAGE_LABELS = { editado: 'Editado', emAprovacao: 'Em Aprovação', alteracao: 'Alteração', aprovado: 'Aprovado', publicado: 'Publicado' }
@@ -45,6 +47,8 @@ export const CONFIG_VIDEOS_CURTOS = {
   attachmentsType: 'videosCurtos', // pasta dos anexos no R2
   vazioTitulo: 'Nenhum vídeo curto encontrado',
   vazioDescricao: 'Adicione um novo vídeo curto ou ajuste os filtros.',
+  // sub-abas de rede social (TikTok / Shorts); [] desliga. Ver lib/redes.js
+  redes: REDES_VIDEOS_CURTOS,
 }
 
 export function VideosCurtosTab({ onNavigate, config }) {
@@ -56,6 +60,10 @@ export function VideosCurtosTab({ onNavigate, config }) {
   const { showLink, toggleLink } = useLinkColumn(cfg.scope)
   const [filterCat, setFilterCat] = useState('')
   const [filterStage, setFilterStage] = useState('')
+  // '' = lista principal; 'tiktok' / 'shorts' = sub-aba da rede
+  const [rede, setRede] = useState('')
+  const [filterPostado, setFilterPostado] = useState('')
+  const redeAtual = cfg.redes.find(r => r.key === rede) || null
   const [ordem, setOrdem] = useOrdenacao(cfg.scope)
   const [notaTarget, setNotaTarget] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -68,13 +76,23 @@ export function VideosCurtosTab({ onNavigate, config }) {
   const filtered = useMemo(() => {
     return items.filter(item => {
       if (filterCat && item.categoria !== filterCat) return false
-      if (!matchesStageFilter(item, filterStage)) return false
+      if (redeAtual) {
+        // a sub-aba só mostra quem já foi aprovado/publicado na lista principal
+        if (!elegivelParaRedes(item)) return false
+        if (!matchesPostadoFilter(item, redeAtual.campo, filterPostado)) return false
+      } else if (!matchesStageFilter(item, filterStage)) {
+        return false
+      }
       if (search && !item.titulo?.toLowerCase().includes(search.toLowerCase())) return false
       return true
     })
-  }, [items, search, filterCat, filterStage])
+  }, [items, search, filterCat, filterStage, redeAtual, filterPostado])
 
-  const ordenados = useMemo(() => ordenar(filtered, ordem, { stages: STAGES, titulo: 'titulo' }), [filtered, ordem])
+  // na sub-aba, "ordenar por status" = não postados primeiro
+  const ordenados = useMemo(
+    () => ordenar(filtered, ordem, { stages: redeAtual ? [redeAtual.campo] : STAGES, titulo: 'titulo' }),
+    [filtered, ordem, redeAtual],
+  )
 
   function openAdd() { setEditing(null); setModalOpen(true) }
   function openEdit(item) { setEditing(item); setModalOpen(true) }
@@ -153,18 +171,63 @@ export function VideosCurtosTab({ onNavigate, config }) {
 
   return (
     <div>
+      {cfg.redes.length > 0 && (
+        <div role="tablist" aria-label="Lista" className="mb-5 inline-flex items-center gap-1 rounded-xl border border-hairline bg-elevated/50 p-1">
+          {[{ key: '', label: 'Principal' }, ...cfg.redes].map(r => {
+            const ativo = rede === r.key
+            const contagem = r.campo ? contarRede(items, r.campo) : null
+            return (
+              <button
+                key={r.key}
+                type="button"
+                role="tab"
+                aria-selected={ativo}
+                onClick={() => setRede(r.key)}
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors',
+                  ativo ? 'bg-surface text-ink shadow-sm' : 'text-mute hover:text-ink',
+                )}
+              >
+                {r.label}
+                {contagem && (
+                  <span
+                    className={cn(
+                      'rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums',
+                      contagem.total > 0 && contagem.postados === contagem.total
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-ink/5 text-mute',
+                    )}
+                    title={`${contagem.postados} de ${contagem.total} postados no ${r.label}`}
+                  >
+                    {contagem.postados}/{contagem.total}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar por título..." className="w-64" />
         <Select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="w-48 !h-10">
           <option value="">Todas categorias</option>
           {categorias.map(c => <option key={c} value={c}>{c}</option>)}
         </Select>
-        <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-48 !h-10">
-          <option value="">Todos os status</option>
-          {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </Select>
+        {redeAtual ? (
+          <Select value={filterPostado} onChange={e => setFilterPostado(e.target.value)} className="w-48 !h-10">
+            {OPCOES_FILTRO_POSTADO.map(o => (
+              <option key={o.value} value={o.value}>{o.value ? `${o.label} no ${redeAtual.label}` : `Todos (${redeAtual.label})`}</option>
+            ))}
+          </Select>
+        ) : (
+          <Select value={filterStage} onChange={e => setFilterStage(e.target.value)} className="w-48 !h-10">
+            <option value="">Todos os status</option>
+            {stageFilterOptions(STAGES, STAGE_LABELS).map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </Select>
+        )}
         <Select value={ordem} onChange={e => setOrdem(e.target.value)} className="w-64 !h-10" title="Ordenar por">
           {OPCOES_ORDEM.map(o => <option key={o.value} value={o.value}>Ordenar: {o.label}</option>)}
         </Select>
@@ -181,19 +244,29 @@ export function VideosCurtosTab({ onNavigate, config }) {
         <Button variant="ghost" size="sm" onClick={() => exportToCSV(items, cfg.csv)} icon={<Download size={14} />}>
           CSV
         </Button>
-        <Button variant="primary" size="sm" onClick={openAdd} icon={<Plus size={16} />}>
-          {cfg.novo}
-        </Button>
+        {!redeAtual && (
+          <Button variant="primary" size="sm" onClick={openAdd} icon={<Plus size={16} />}>
+            {cfg.novo}
+          </Button>
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Film} title={cfg.vazioTitulo} description={cfg.vazioDescricao} />
+        redeAtual && !search && !filterCat && !filterPostado ? (
+          <EmptyState
+            icon={Film}
+            title={`Nada para o ${redeAtual.label} por enquanto`}
+            description="Os vídeos entram aqui sozinhos assim que ficarem aprovados ou publicados na lista Principal."
+          />
+        ) : (
+          <EmptyState icon={Film} title={cfg.vazioTitulo} description={cfg.vazioDescricao} />
+        )
       ) : (
         <div className="overflow-x-auto rounded-xl border border-hairline">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hairline bg-elevated/50">
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute w-32">Status</th>
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute w-32">{redeAtual ? redeAtual.label : 'Status'}</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Categoria</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-mute">Título</th>
                 {showLink && (
@@ -209,12 +282,20 @@ export function VideosCurtosTab({ onNavigate, config }) {
                   isPending(item) && 'bg-amber-50/30 dark:bg-amber-950/10',
                 )}>
                   <td className="px-4 py-4">
-                    <StageStatusSelect
-                      item={item}
-                      stages={STAGES}
-                      labels={STAGE_LABELS}
-                      onChange={(status) => handleStatusChange(item, status)}
-                    />
+                    {redeAtual ? (
+                      <PostadoToggle
+                        postado={Boolean(item[redeAtual.campo])}
+                        rede={redeAtual.label}
+                        onChange={(v) => updateItem(item.id, { [redeAtual.campo]: v })}
+                      />
+                    ) : (
+                      <StageStatusSelect
+                        item={item}
+                        stages={STAGES}
+                        labels={STAGE_LABELS}
+                        onChange={(status) => handleStatusChange(item, status)}
+                      />
+                    )}
                   </td>
                   <td className="px-4 py-4">
                     {item.categoria && <Badge tone="soft">{item.categoria}</Badge>}
@@ -278,6 +359,7 @@ export function VideosCurtosTab({ onNavigate, config }) {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? `Editar ${cfg.tipo}` : cfg.novo}>
         <VideosCurtosForm
           attachmentsType={cfg.attachmentsType}
+          redes={cfg.redes}
           initialData={editing}
           onSave={handleSave}
           onClose={() => setModalOpen(false)}
@@ -310,8 +392,9 @@ export function VideosCurtosTab({ onNavigate, config }) {
   )
 }
 
-function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType }) {
-  const [form, setForm] = useState(initialData || emptyItem)
+function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType, redes = [] }) {
+  // os campos "postado" só existem nas listas com sub-abas de rede (não em Vídeos Tiago)
+  const [form, setForm] = useState(initialData || { ...emptyItem, ...Object.fromEntries(redes.map(r => [r.campo, false])) })
   // id gerado já na criação, para permitir anexos antes de salvar
   const [draftId] = useState(() => crypto.randomUUID())
   const set = (f, v) => setForm(prev => ({ ...prev, [f]: v }))
@@ -337,9 +420,16 @@ function VideosCurtosForm({ initialData, onSave, onClose, attachmentsType }) {
       <Field label="Título">
         <Input value={form.titulo} onChange={e => set('titulo', e.target.value)} placeholder="Título do vídeo curto" required />
       </Field>
-      <div className="flex items-center gap-6 pt-2">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
         {STAGES.map(s => <Checkbox key={s} checked={form[s]} onChange={v => set(s, v)} label={STAGE_LABELS[s]} />)}
       </div>
+      {redes.length > 0 && (form.aprovado || form.publicado) && (
+        <div className="flex items-center gap-6">
+          {redes.map(r => (
+            <Checkbox key={r.key} checked={Boolean(form[r.campo])} onChange={v => set(r.campo, v)} label={`Postado no ${r.label}`} />
+          ))}
+        </div>
+      )}
       {form.alteracao && (
         <Field label="O que precisa mudar">
           <Textarea rows={3} value={form.alteracaoNota || ''} onChange={e => set('alteracaoNota', e.target.value)} placeholder="Anotações para quem vai editar..." />
